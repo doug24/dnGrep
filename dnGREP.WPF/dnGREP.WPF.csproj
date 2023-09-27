@@ -224,6 +224,18 @@
     <OpenXmlPluginFiles Include="$(SolutionDir)\dnGREP.OpenXmlEngine\bin\$(Platform)\$(Configuration)\net7.0-windows\ExcelNumberFormat.dll" />
   </ItemGroup>
   <ItemGroup>
+    <PDF2PluginFiles Include="$(SolutionDir)\dnGREP.Pdf2Engine\bin\$(Platform)\$(Configuration)\net7.0-windows\dnGREP.Engines.Pdf2.plugin" />
+    <PDF2PluginFiles Include="$(SolutionDir)\dnGREP.Pdf2Engine\bin\$(Platform)\$(Configuration)\net7.0-windows\dnGREP.Engines.Pdf2.dll" />
+    <PDF2PluginFiles Include="$(SolutionDir)\dnGREP.Pdf2Engine\bin\$(Platform)\$(Configuration)\net7.0-windows\dnGREP.Engines.Pdf2.pdb" />
+    <PDF2PluginFiles Include="$(SolutionDir)\dnGREP.Pdf2Engine\bin\$(Platform)\$(Configuration)\net7.0-windows\UglyToad.PdfPig.Core.dll" />
+    <PDF2PluginFiles Include="$(SolutionDir)\dnGREP.Pdf2Engine\bin\$(Platform)\$(Configuration)\net7.0-windows\UglyToad.PdfPig.dll" />
+    <PDF2PluginFiles Include="$(SolutionDir)\dnGREP.Pdf2Engine\bin\$(Platform)\$(Configuration)\net7.0-windows\UglyToad.PdfPig.DocumentLayoutAnalysis.dll" />
+    <PDF2PluginFiles Include="$(SolutionDir)\dnGREP.Pdf2Engine\bin\$(Platform)\$(Configuration)\net7.0-windows\UglyToad.PdfPig.Fonts.dll" />
+    <PDF2PluginFiles Include="$(SolutionDir)\dnGREP.Pdf2Engine\bin\$(Platform)\$(Configuration)\net7.0-windows\UglyToad.PdfPig.Package.dll" />
+    <PDF2PluginFiles Include="$(SolutionDir)\dnGREP.Pdf2Engine\bin\$(Platform)\$(Configuration)\net7.0-windows\UglyToad.PdfPig.Tokenization.dll" />
+    <PDF2PluginFiles Include="$(SolutionDir)\dnGREP.Pdf2Engine\bin\$(Platform)\$(Configuration)\net7.0-windows\UglyToad.PdfPig.Tokens.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <PDFPluginFiles Include="$(SolutionDir)\dnGREP.PdfEngine\bin\$(Platform)\$(Configuration)\net7.0-windows\dnGREP.Engines.Pdf.plugin" />
     <PDFPluginFiles Include="$(SolutionDir)\dnGREP.PdfEngine\bin\$(Platform)\$(Configuration)\net7.0-windows\dnGREP.Engines.Pdf.dll" />
     <PDFPluginFiles Include="$(SolutionDir)\dnGREP.PdfEngine\bin\$(Platform)\$(Configuration)\net7.0-windows\dnGREP.Engines.Pdf.pdb" />
@@ -250,6 +262,7 @@
     <Copy SourceFiles="@(SevenZipFiles)" DestinationFolder="bin\$(Platform)\$(Configuration)\net7.0-windows" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(EverythingFiles)" DestinationFolder="bin\$(Platform)\$(Configuration)\net7.0-windows" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(OpenXmlPluginFiles)" DestinationFolder="bin\$(Platform)\$(Configuration)\net7.0-windows\Plugins\OpenXmlSearch" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(PDF2PluginFiles)" DestinationFolder="bin\$(Platform)\$(Configuration)\net7.0-windows\Plugins\Pdf2Search" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(PDFPluginFiles)" DestinationFolder="bin\$(Platform)\$(Configuration)\net7.0-windows\Plugins\PdfSearch" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(XPDFFiles)" DestinationFolder="bin\$(Platform)\$(Configuration)\net7.0-windows\Plugins\PdfSearch\xpdf" SkipUnchangedFiles="true" />
     <Copy SourceFiles="@(XPDFDocFiles)" DestinationFolder="bin\$(Platform)\$(Configuration)\net7.0-windows\Plugins\PdfSearch\xpdf\doc" SkipUnchangedFiles="true" />
@@ -259,6 +272,7 @@
     <Copy SourceFiles="@(SevenZipFiles)" DestinationFolder="$(SolutionDir)\publish\win-$(Platform)" />
     <Copy SourceFiles="@(EverythingFiles)" DestinationFolder="$(SolutionDir)\publish\win-$(Platform)" />
     <Copy SourceFiles="@(OpenXmlPluginFiles)" DestinationFolder="$(SolutionDir)\publish\win-$(Platform)\Plugins\OpenXmlSearch" />
+    <Copy SourceFiles="@(PDF2PluginFiles)" DestinationFolder="$(SolutionDir)\publish\win-$(Platform)\Plugins\Pdf2Search" />
     <Copy SourceFiles="@(PDFPluginFiles)" DestinationFolder="$(SolutionDir)\publish\win-$(Platform)\Plugins\PdfSearch" />
     <Copy SourceFiles="@(XPDFFiles)" DestinationFolder="$(SolutionDir)\publish\win-$(Platform)\Plugins\PdfSearch\xpdf" />
     <Copy SourceFiles="@(XPDFDocFiles)" DestinationFolder="$(SolutionDir)\publish\win-$(Platform)\Plugins\PdfSearch\xpdf\doc" />
