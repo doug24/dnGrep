@@ -7,7 +7,9 @@ using System.Text;
 using dnGREP.Common;
 using NLog;
 using UglyToad.PdfPig;
+using UglyToad.PdfPig.Annotations;
 using UglyToad.PdfPig.Content;
+using UglyToad.PdfPig.DocumentLayoutAnalysis;
 using UglyToad.PdfPig.Util;
 
 namespace dnGREP.Engines.Pdf2
@@ -151,93 +153,106 @@ namespace dnGREP.Engines.Pdf2
             var previous = default(Letter);
             var hasJustAddedWhitespace = true;
 
-            for (var i = 0; i < page.Letters.Count; i++)
+            var annotations = page.ExperimentalAccess.GetAnnotations()
+                .Where(a => a != null && !string.IsNullOrEmpty(a.Content))
+                .OrderByDescending(a => a.Rectangle.Top).ThenBy(a => a.Rectangle.Left)
+                .ToList();
+
+            if (page.Letters.Count > 0)
             {
-                var letter = page.Letters[i];
+                var letters = DuplicateOverlappingTextProcessor.Get(page.Letters);
 
-                if (string.IsNullOrEmpty(letter.Value))
-                {
-                    continue;
-                }
+                letters = GroupByLines(letters);
 
-                if (ReplaceableWhitespace.Contains(letter.Value))
+                for (var i = 0; i < letters.Count; i++)
                 {
-                    letter = new Letter(
-                        " ",
-                        letter.GlyphRectangle,
-                        letter.StartBaseLine,
-                        letter.EndBaseLine,
-                        letter.Width,
-                        letter.FontSize,
-                        letter.Font,
-                        letter.RenderingMode,
-                        letter.StrokeColor,
-                        letter.FillColor,
-                        letter.PointSize,
-                        letter.TextSequence);
-                }
+                    var letter = letters[i];
 
-                if (letter.Value == " " && !hasJustAddedWhitespace)
-                {
-                    if (previous != null && IsNewline(previous, letter, page, out _))
+                    if (string.IsNullOrEmpty(letter.Value))
                     {
                         continue;
                     }
 
-                    sb.Append(' ');
-                    previous = letter;
-                    hasJustAddedWhitespace = true;
-                    continue;
-                }
-
-                hasJustAddedWhitespace = false;
-
-                if (previous != null && letter.Value != " ")
-                {
-                    var nwPrevious = GetNonWhitespacePrevious(page, i);
-
-                    if (IsNewline(nwPrevious, letter, page, out var isDoubleNewline))
+                    if (ReplaceableWhitespace.Contains(letter.Value))
                     {
-                        while (sb[^1] == ' ')
-                        {
-                            sb.Remove(sb.Length - 1, 1);
-                        }
-
-                        if (isDoubleNewline)
-                        {
-                            sb.Append('\n');
-                            sb.Append('\n');
-                        }
-                        else
-                        {
-                            sb.Append(' ');
-                            wrapIndexes.Add(sb.Length - 1);
-                        }
-
-                        hasJustAddedWhitespace = true;
+                        letter = new Letter(
+                            " ",
+                            letter.GlyphRectangle,
+                            letter.StartBaseLine,
+                            letter.EndBaseLine,
+                            letter.Width,
+                            letter.FontSize,
+                            letter.Font,
+                            letter.RenderingMode,
+                            letter.StrokeColor,
+                            letter.FillColor,
+                            letter.PointSize,
+                            letter.TextSequence);
                     }
-                    else if (previous.Value != " ")
-                    {
-                        var gap = letter.StartBaseLine.X - previous.EndBaseLine.X;
 
-                        if (WhitespaceSizeStatistics.IsProbablyWhitespace(gap, previous))
+                    if (letter.Value == " " && !hasJustAddedWhitespace)
+                    {
+                        if (previous != null && IsNewline(previous, letter, out _))
                         {
-                            sb.Append(' ');
+                            continue;
+                        }
+
+                        sb.Append(' ');
+                        previous = letter;
+                        hasJustAddedWhitespace = true;
+                        continue;
+                    }
+
+                    hasJustAddedWhitespace = false;
+
+                    if (previous != null && letter.Value != " ")
+                    {
+                        var nwPrevious = GetNonWhitespacePrevious(letters, i);
+
+                        if (IsNewline(nwPrevious, letter, out var isDoubleNewline))
+                        {
+                            while (sb[^1] == ' ')
+                            {
+                                sb.Remove(sb.Length - 1, 1);
+                            }
+
+                            if (isDoubleNewline)
+                            {
+                                sb.Append('\n');
+                                sb.Append('\n');
+                            }
+                            else
+                            {
+                                sb.Append(' ');
+                                wrapIndexes.Add(sb.Length - 1);
+                            }
+
+                            AddAnnotation(sb, previous, letter, annotations);
+
                             hasJustAddedWhitespace = true;
                         }
-                    }
-                }
+                        else if (previous.Value != " ")
+                        {
+                            var gap = letter.StartBaseLine.X - previous.EndBaseLine.X;
 
-                sb.Append(SeparateLigature(letter.Value));
-                previous = letter;
+                            if (WhitespaceSizeStatistics.IsProbablyWhitespace(gap, previous))
+                            {
+                                sb.Append(' ');
+                                hasJustAddedWhitespace = true;
+                            }
+                        }
+                    }
+
+                    sb.Append(SeparateLigature(letter.Value));
+                    previous = letter;
+                }
             }
 
-            var annotations = page.ExperimentalAccess.GetAnnotations();
-            if (annotations != null && annotations.Any(a => !string.IsNullOrEmpty(a.Content)))
+            if (annotations.Any())
             {
-                sb.Append('\n').Append(@"──────").Append('\n');
                 foreach (var annot in annotations)
                 {
+                    sb.Append('\n').Append(@"────────────").Append('\n');
                     if (!string.IsNullOrEmpty(annot.Content))
                     {
                         sb.Append(annot.Content
@@ -245,17 +260,43 @@ namespace dnGREP.Engines.Pdf2
                             .Append('\n');
                     }
                 }
-                sb.Append(@"──────").Append('\n');
+                sb.Append(@"────────────").Append('\n');
             }
 
             sb.Append('\n').Append('\f');// form feed
         }
 
-        private static Letter? GetNonWhitespacePrevious(Page page, int index)
+        private static IReadOnlyList<Letter> GroupByLines(IReadOnlyList<Letter> letters)
+        {
+            List<TextRow> list = new();
+
+            foreach (var letter in letters)
+            {
+                bool placed = false;
+                foreach (var row in list)
+                {
+                    if (letter.Intersects(row))
+                    {
+                        row.AddLetter(letter);
+                        placed = true;
+                        break;
+                    }
+                }
+                if (!placed)
+                {
+                    list.Insert(0, new TextRow(letter));
+                }
+            }
+
+            list.Sort((x, y) => y.Baseline.CompareTo(x.Baseline));
+            return list.SelectMany(tr => tr.Letters).ToList();
+        }
+
+        private static Letter? GetNonWhitespacePrevious(IReadOnlyList<Letter> letters, int index)
         {
             for (var i = index - 1; i >= 0; i--)
             {
-                var letter = page.Letters[i];
+                var letter = letters[i];
                 if (!string.IsNullOrWhiteSpace(letter.Value))
                 {
                     return letter;
@@ -265,7 +306,7 @@ namespace dnGREP.Engines.Pdf2
             return null;
         }
 
-        private static bool IsNewline(Letter? previous, Letter letter, Page page, out bool isDoubleNewline)
+        private static bool IsNewline(Letter? previous, Letter letter, out bool isDoubleNewline)
         {
             isDoubleNewline = false;
 
@@ -288,6 +329,29 @@ namespace dnGREP.Engines.Pdf2
             return gap > minPtSize * 0.9;
         }
 
+        private static void AddAnnotation(StringBuilder sb, Letter previous, Letter letter, List<Annotation> annotations)
+        {
+            var annotation = annotations.FirstOrDefault();
+
+            if (annotation != null)
+            {
+                if (annotation.Rectangle.Top < previous.Location.Y &&
+                    annotation.Rectangle.Top >= letter.Location.Y)
+                {
+                    sb.Append(@"────────────").Append('\n');
+                    sb.Append(annotation.Content
+                        .Replace("\r\n", "\n", StringComparison.Ordinal))
+                        .Append('\n');
+                    sb.Append(@"────────────").Append('\n');
+
+                    annotations.RemoveAt(0);
+
+                    // are there any more at this location?
+                    AddAnnotation(sb, previous, letter, annotations);
+                }
+            }
+        }
+
         private static string SeparateLigature(string input)
         {
             // this method expects 1 character strings (a single letter) as input
@@ -304,39 +368,9 @@ namespace dnGREP.Engines.Pdf2
 
             return input;
 
-            // https://gist.github.com/andyraddatz/e6a396fb91856174d4e3f1bf2e10951c
-            //switch (c)
-            //{
-            //    default:
-            //        return input;
-
-            //    case '\uFB00': // ﬀ  [LATIN SMALL LIGATURE FF]
-            //        return "ff";
-            //    case '\uFB03': // ﬃ  [LATIN SMALL LIGATURE FFI]
-            //        return "ffi";
-            //    case '\uFB04': // ﬄ  [LATIN SMALL LIGATURE FFL]
-            //        return "ffl";
-            //    case '\uFB01': // ﬁ  [LATIN SMALL LIGATURE FI]
-            //        return "fi";
-            //    case '\uFB02': // ﬂ  [LATIN SMALL LIGATURE FL]
-            //        return "fl";
-            //    case '\u0132': // Ĳ  [LATIN CAPITAL LIGATURE IJ]
-            //        return "IJ";
-            //    case '\u0133': // ĳ  [LATIN SMALL LIGATURE IJ]
-            //        return "ij";
-            //    case '\u0152': // Œ  [LATIN CAPITAL LIGATURE OE]
-            //    case '\u0276': // ɶ  [LATIN LETTER SMALL CAPITAL OE]
-            //        return "OE";
-            //    case '\u0153': // œ  [LATIN SMALL LIGATURE OE]
-            //    case '\u1D14': // ᴔ  [LATIN SMALL LETTER TURNED OE]
-            //        return "oe";
-            //    case '\uA74F': // ꝏ  [LATIN SMALL LETTER OO]
-            //        return "oo";
-            //    case '\uFB06': // ﬆ  [LATIN SMALL LIGATURE ST]
-            //        return "st";
-            //}
         }
 
+        // https://gist.github.com/andyraddatz/e6a396fb91856174d4e3f1bf2e10951c
         private static readonly Dictionary<char, string> Ligatures = new()
         {
             { '\uFB00', "ff" },  // ﬀ  [LATIN SMALL LIGATURE FF]
@@ -352,9 +386,7 @@ namespace dnGREP.Engines.Pdf2
             { '\u1D14', "oe" },  // ᴔ  [LATIN SMALL LETTER TURNED OE]
             { '\uA74F', "oo" },  // ꝏ [LATIN SMALL LETTER OO]
             { '\uFB06', "st" },  // ﬆ  [LATIN SMALL LIGATURE ST]
-            //{ '\u001d', "ff" },  // 
-            //{ '\u001f', "fi" },  // 
-       };
+        };
 
         public bool Replace(string sourceFile, string destinationFile, string searchPattern, string replacePattern, SearchType searchType,
             GrepSearchOption searchOptions, Encoding encoding, IEnumerable<GrepMatch> replaceItems, PauseCancelToken pauseCancelToken)
