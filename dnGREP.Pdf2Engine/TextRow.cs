@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using UglyToad.PdfPig.Content;
+using UglyToad.PdfPig.DocumentLayoutAnalysis.WordExtractor;
 
 namespace dnGREP.Engines.Pdf2
 {
@@ -9,37 +11,45 @@ namespace dnGREP.Engines.Pdf2
     {
         private readonly List<Letter> letters = new();
 
-        public TextRow(Letter letter) 
+        public TextRow(Letter letter)
         {
             letters.Add(letter);
-            Baseline = letter.StartBaseLine.Y;
-            // sometimes the letter height is 0
-            Topline = letter.GlyphRectangle.Height > 0 ?
-                letter.GlyphRectangle.Top : 
-                letter.StartBaseLine.Y + letter.PointSize * 0.75;
+            BaselineMin = letter.StartBaseLine.Y - letter.PointSize * 0.5;
+            BaselineMax = letter.StartBaseLine.Y + letter.PointSize * 0.5;
         }
 
-        public double Baseline { get; private set; }
+        public double BaselineMin { get; private set; }
 
-        public double Topline { get; private set; }
+        public double BaselineMax { get; private set; }
 
         public void AddLetter(Letter letter)
         {
             letters.Add(letter);
+        }
 
-            if (letter.StartBaseLine.Y < Baseline)
+        public IReadOnlyList<Letter> Letters => letters;
+
+        public void SortLetters()
+        {
+            List<Letter> sortedLetters = new();
+            foreach (var word in NearestNeighbourWordExtractor.Instance.GetWords(letters)
+                .OrderBy(w => w.Letters[0].Location.X))
             {
-                Baseline = letter.StartBaseLine.Y;
+                foreach (Letter letter in word.Letters)
+                {
+                    sortedLetters.Add(letter);
+                }
             }
-            if (letter.GlyphRectangle.Top > Topline)
-            {
-                Topline = letter.GlyphRectangle.Top;
-            }
+
+            letters.Clear();
+            letters.AddRange(sortedLetters);
+
+            //letters.Sort((a, b) => a.Location.X.CompareTo(b.Location.X));
         }
 
         public override int GetHashCode()
         {
-            return Baseline.GetHashCode();
+            return BaselineMin.GetHashCode();
         }
 
         public override bool Equals(object? obj)
@@ -50,22 +60,13 @@ namespace dnGREP.Engines.Pdf2
         public bool Equals(TextRow? other)
         {
             if (other == null) return false;
-            return other.Baseline == Baseline;
-        }
-
-        public IReadOnlyCollection<Letter> Letters
-        {
-            get
-            {
-                letters.Sort((a, b) => a.Location.X.CompareTo(b.Location.X));
-                return letters;
-            }
+            return other.BaselineMin == BaselineMin;
         }
 
         public override string ToString()
         {
             var text = string.Join("", letters.Select(l => l.Value));
-            return $"{Baseline} {text}";
+            return $"{BaselineMin} - {BaselineMax} : {text}";
         }
     }
 

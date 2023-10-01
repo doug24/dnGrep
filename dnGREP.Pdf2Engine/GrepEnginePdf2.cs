@@ -9,7 +9,6 @@ using NLog;
 using UglyToad.PdfPig;
 using UglyToad.PdfPig.Annotations;
 using UglyToad.PdfPig.Content;
-using UglyToad.PdfPig.DocumentLayoutAnalysis;
 using UglyToad.PdfPig.Util;
 
 namespace dnGREP.Engines.Pdf2
@@ -68,7 +67,7 @@ namespace dnGREP.Engines.Pdf2
             try
             {
                 List<int> wrapIndexes = new();
-                var text = ExtractText(input, wrapIndexes);
+                var text = ExtractText(input, wrapIndexes, pauseCancelToken);
 
                 var matches = searchMethod(-1, 0, text, searchPattern,
                     searchOptions, true, pauseCancelToken);
@@ -127,96 +126,75 @@ namespace dnGREP.Engines.Pdf2
             return tempFileName;
         }
 
-        private static string ExtractText(Stream stream, List<int> wrapIndexes)
+        private static string ExtractText(Stream stream, List<int> wrapIndexes, PauseCancelToken pauseCancelToken)
         {
             StringBuilder sb = new();
             using (var document = PdfDocument.Open(stream))
             {
                 foreach (var page in document.GetPages())
                 {
-                    GetText(page, sb, wrapIndexes);
+                    GetText(page, sb, wrapIndexes, pauseCancelToken);
                 }
+
+                pauseCancelToken.WaitWhilePausedOrThrowIfCancellationRequested();
             }
             return sb.ToString();
         }
 
-        private static readonly HashSet<string> ReplaceableWhitespace = new()
-        {
-            "\t",
-            "\v",
-            "\r",
-            "\f"
-        };
-
-        private static void GetText(Page page, StringBuilder sb, List<int> wrapIndexes)
+        private static void GetText(Page page, StringBuilder sb, List<int> wrapIndexes, PauseCancelToken pauseCancelToken)
         {
             var previous = default(Letter);
-            var hasJustAddedWhitespace = true;
+            var nwPrevious = default(Letter);
 
             var annotations = page.ExperimentalAccess.GetAnnotations()
                 .Where(a => a != null && !string.IsNullOrEmpty(a.Content))
                 .OrderByDescending(a => a.Rectangle.Top).ThenBy(a => a.Rectangle.Left)
                 .ToList();
 
-            if (page.Letters.Count > 0)
+            var letters = DuplicateOverlappingTextProcessor.Get(page.Letters);
+
+            if (letters.Count > 0)
             {
-                var letters = DuplicateOverlappingTextProcessor.Get(page.Letters);
-
-                letters = GroupByLines(letters);
-
-                for (var i = 0; i < letters.Count; i++)
+                var textRows = GroupByLines(letters, pauseCancelToken);
+                foreach (var textRow in textRows)
                 {
-                    var letter = letters[i];
+                    pauseCancelToken.WaitWhilePausedOrThrowIfCancellationRequested();
 
-                    if (string.IsNullOrEmpty(letter.Value))
+                    textRow.SortLetters();
+                    for (var i = 0; i < textRow.Letters.Count; i++)
                     {
-                        continue;
-                    }
+                        var letter = textRow.Letters[i];
 
-                    if (ReplaceableWhitespace.Contains(letter.Value))
-                    {
-                        letter = new Letter(
-                            " ",
-                            letter.GlyphRectangle,
-                            letter.StartBaseLine,
-                            letter.EndBaseLine,
-                            letter.Width,
-                            letter.FontSize,
-                            letter.Font,
-                            letter.RenderingMode,
-                            letter.StrokeColor,
-                            letter.FillColor,
-                            letter.PointSize,
-                            letter.TextSequence);
-                    }
-
-                    if (letter.Value == " " && !hasJustAddedWhitespace)
-                    {
-                        if (previous != null && IsNewline(previous, letter, out _))
+                        if (string.IsNullOrEmpty(letter.Value))
                         {
                             continue;
                         }
 
-                        sb.Append(' ');
-                        previous = letter;
-                        hasJustAddedWhitespace = true;
-                        continue;
-                    }
-
-                    hasJustAddedWhitespace = false;
-
-                    if (previous != null && letter.Value != " ")
-                    {
-                        var nwPrevious = GetNonWhitespacePrevious(letters, i);
-
-                        if (IsNewline(nwPrevious, letter, out var isDoubleNewline))
+                        if (ReplaceableWhitespace.Contains(letter.Value))
                         {
-                            while (sb[^1] == ' ')
+                            letter = new Letter(
+                                " ",
+                                letter.GlyphRectangle,
+                                letter.StartBaseLine,
+                                letter.EndBaseLine,
+                                letter.Width,
+                                letter.FontSize,
+                                letter.Font,
+                                letter.RenderingMode,
+                                letter.StrokeColor,
+                                letter.FillColor,
+                                letter.PointSize,
+                                letter.TextSequence);
+                        }
+
+                        if (previous != null && i == 0) // starting a new line
+                        {
+                            while (sb.Length > 0 && sb[^1] == ' ')
                             {
                                 sb.Remove(sb.Length - 1, 1);
                             }
 
-                            if (isDoubleNewline)
+                            if (IsDoubleNewline(nwPrevious, letter))
                             {
                                 sb.Append('\n');
                                 sb.Append('\n');
@@ -228,23 +206,26 @@ namespace dnGREP.Engines.Pdf2
                             }
 
                             AddAnnotation(sb, previous, letter, annotations);
-
-                            hasJustAddedWhitespace = true;
                         }
-                        else if (previous.Value != " ")
+
+                        if (previous != null && previous.Value != " " && letter.Value != " ")
                         {
                             var gap = letter.StartBaseLine.X - previous.EndBaseLine.X;
 
-                            if (WhitespaceSizeStatistics.IsProbablyWhitespace(gap, previous))
+                            var repeatCount = IsProbablyWhitespace(gap, previous);
+                            if (repeatCount > 0)
                             {
-                                sb.Append(' ');
-                                hasJustAddedWhitespace = true;
+                                sb.Append(' ', repeatCount);
                             }
                         }
-                    }
 
-                    sb.Append(SeparateLigature(letter.Value));
-                    previous = letter;
+                        sb.Append(SeparateLigature(letter.Value));
+                        previous = letter;
+                        if (letter.Value != " ")
+                        {
+                            nwPrevious = previous;
+                        }
+                    }
                 }
             }
 
@@ -263,70 +244,7 @@ namespace dnGREP.Engines.Pdf2
                 sb.Append(@"────────────").Append('\n');
             }
 
-            sb.Append('\n').Append('\f');// form feed
-        }
-
-        private static IReadOnlyList<Letter> GroupByLines(IReadOnlyList<Letter> letters)
-        {
-            List<TextRow> list = new();
-
-            foreach (var letter in letters)
-            {
-                bool placed = false;
-                foreach (var row in list)
-                {
-                    if (letter.Intersects(row))
-                    {
-                        row.AddLetter(letter);
-                        placed = true;
-                        break;
-                    }
-                }
-                if (!placed)
-                {
-                    list.Insert(0, new TextRow(letter));
-                }
-            }
-
-            list.Sort((x, y) => y.Baseline.CompareTo(x.Baseline));
-            return list.SelectMany(tr => tr.Letters).ToList();
-        }
-
-        private static Letter? GetNonWhitespacePrevious(IReadOnlyList<Letter> letters, int index)
-        {
-            for (var i = index - 1; i >= 0; i--)
-            {
-                var letter = letters[i];
-                if (!string.IsNullOrWhiteSpace(letter.Value))
-                {
-                    return letter;
-                }
-            }
-
-            return null;
-        }
-
-        private static bool IsNewline(Letter? previous, Letter letter, out bool isDoubleNewline)
-        {
-            isDoubleNewline = false;
-
-            if (previous == null)
-            {
-                return false;
-            }
-
-            var ptSizePrevious = (int)Math.Round(previous.PointSize);
-            var ptSize = (int)Math.Round(letter.PointSize);
-            var minPtSize = ptSize < ptSizePrevious ? ptSize : ptSizePrevious;
-
-            var gap = Math.Abs(previous.StartBaseLine.Y - letter.StartBaseLine.Y);
-
-            if (gap > minPtSize * 1.7 && previous.StartBaseLine.Y > letter.StartBaseLine.Y)
-            {
-                isDoubleNewline = true;
-            }
-
-            return gap > minPtSize * 0.9;
+            sb.Append('\n', 2).Append('\f');// form feed
         }
 
         private static void AddAnnotation(StringBuilder sb, Letter previous, Letter letter, List<Annotation> annotations)
@@ -351,6 +269,75 @@ namespace dnGREP.Engines.Pdf2
                 }
             }
         }
+
+        private static int IsProbablyWhitespace(double gap, Letter letter)
+        {
+            double expected = WhitespaceSizeStatistics.GetExpectedWhitespaceSize(letter);
+            double minLimit = expected - (letter.PointSize * 0.05);
+            if (gap <= minLimit)
+                return 0;
+
+            int count = Math.Max(1, (int)(0.8 * Math.Floor(gap / expected)));
+
+            return count;
+        }
+
+        private static IList<TextRow> GroupByLines(IReadOnlyList<Letter> letters, PauseCancelToken pauseCancelToken)
+        {
+            List<TextRow> list = new();
+
+            foreach (var letter in letters)
+            {
+                pauseCancelToken.WaitWhilePausedOrThrowIfCancellationRequested();
+
+                bool placed = false;
+                foreach (var row in list)
+                {
+                    if (letter.Intersects(row))
+                    {
+                        row.AddLetter(letter);
+                        placed = true;
+                        break;
+                    }
+                }
+                if (!placed)
+                {
+                    list.Insert(0, new TextRow(letter));
+                }
+            }
+
+            list.Sort((x, y) => y.BaselineMin.CompareTo(x.BaselineMin));
+            return list;
+        }
+
+        private static bool IsDoubleNewline(Letter? previous, Letter letter)
+        {
+            if (previous == null)
+            {
+                return false;
+            }
+
+            var ptSizePrevious = (int)Math.Round(previous.PointSize);
+            var ptSize = (int)Math.Round(letter.PointSize);
+            var minPtSize = ptSize < ptSizePrevious ? ptSize : ptSizePrevious;
+
+            var gap = Math.Abs(previous.StartBaseLine.Y - letter.StartBaseLine.Y);
+
+            if (gap > minPtSize * 1.7 && previous.StartBaseLine.Y > letter.StartBaseLine.Y)
+            {
+                return true;
+            }
+
+            return false;
+        }
+
+        private static readonly HashSet<string> ReplaceableWhitespace = new()
+        {
+            "\t",
+            "\v",
+            "\r",
+            "\f"
+        };
 
         private static string SeparateLigature(string input)
         {
