@@ -5,7 +5,7 @@ using System.Linq.Expressions;
 using UglyToad.PdfPig.Content;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.WordExtractor;
 
-namespace dnGREP.Engines.Pdf2
+namespace dnGREP.Engines.PdfPig
 {
     internal class TextRow : IEquatable<TextRow>
     {

@@ -11,12 +11,12 @@ using UglyToad.PdfPig.Annotations;
 using UglyToad.PdfPig.Content;
 using UglyToad.PdfPig.Util;
 
-namespace dnGREP.Engines.Pdf2
+namespace dnGREP.Engines.PdfPig
 {
     /// <summary>
     /// Plug-in for searching PDF documents
     /// </summary>
-    public class GrepEnginePdf2 : GrepEngineBase, IGrepPluginEngine
+    public class GrepEnginePdfPig : GrepEngineBase, IGrepPluginEngine
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 

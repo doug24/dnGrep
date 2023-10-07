@@ -1,6 +1,6 @@
 ﻿using UglyToad.PdfPig.Content;
 
-namespace dnGREP.Engines.Pdf2
+namespace dnGREP.Engines.PdfPig
 {
     internal static class Extensions
     {

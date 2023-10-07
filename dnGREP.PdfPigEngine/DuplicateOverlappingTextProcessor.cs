@@ -1,4 +1,4 @@
-﻿namespace dnGREP.Engines.Pdf2
+﻿namespace dnGREP.Engines.PdfPig
 {
     using System;
     using System.Collections.Generic;

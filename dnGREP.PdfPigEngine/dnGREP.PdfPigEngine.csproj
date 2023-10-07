@@ -3,8 +3,8 @@
     <TargetFramework>net7.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
     <Platforms>x86;x64</Platforms>
-  <RootNamespace>dnGREP.Engines.Pdf2</RootNamespace>
-    <AssemblyName>dnGREP.Engines.Pdf2</AssemblyName>
+  <RootNamespace>dnGREP.Engines.PdfPig</RootNamespace>
+    <AssemblyName>dnGREP.Engines.PdfPig</AssemblyName>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
@@ -27,6 +27,9 @@
     <AssemblyOriginatorKeyFile>dnGrep.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="dnGREP.Engines.PdfPig.plugin" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\AssemblyInfoCommon.cs">
       <Link>Properties\AssemblyInfoCommon.cs</Link>
     </Compile>
@@ -35,7 +38,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="dnGREP.Engines.Pdf2.plugin">
+    <Content Include="dnGREP.Engines.PdfPig.plugin">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
