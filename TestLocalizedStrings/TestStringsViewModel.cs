@@ -9,7 +9,7 @@ namespace dnGREP.TestLocalizedStrings
 {
     public class TestStringsViewModel : CultureAwareViewModel
     {
-        private readonly ObservableCollection<ResourceString> list = new();
+        private readonly ObservableCollection<ResourceString> list = [];
 
         private const string sFile = "%file";
         private const string Line = "%line";
@@ -35,6 +35,7 @@ namespace dnGREP.TestLocalizedStrings
                 { "pt", "Português" },
                 { "ru", "pусский" },
                 { "sr", "српски" },
+                { "sv", "svenska" },
                 { "th", "ไทย" },
                 { "tr", "Türkçe" },
                 { "zh-CN", "简体中文" },
@@ -43,7 +44,7 @@ namespace dnGREP.TestLocalizedStrings
 
         public TestStringsViewModel()
         {
-            CultureNames = AppCultures.ToArray();
+            CultureNames = [.. AppCultures];
             CurrentCulture = TranslationSource.Instance.CurrentCulture.Name;
 
             TranslationSource.Instance.CurrentCultureChanged += (s, e) =>
@@ -122,15 +123,10 @@ namespace dnGREP.TestLocalizedStrings
         }
     }
 
-    public class ResourceString
+    public class ResourceString(string name, string value)
     {
-        public ResourceString(string name, string value)
-        {
-            Name = name;
-            Value = value;
-        }
-        public string Name { get; set; }
-        public string Value { get; set; }
+        public string Name { get; set; } = name;
+        public string Value { get; set; } = value;
     }
 
 }

@@ -83,32 +83,77 @@ namespace dnGREP.Common
         MatchCount,
     }
 
-    public enum ReportMode 
-    { 
-        FullLine, 
+    public enum ReportMode
+    {
+        FullLine,
         Matches,
         Groups
     }
 
     public enum UniqueScope
-    { 
+    {
         PerFile,
         Global
     }
 
     public enum PdfNumberType
-    { 
+    {
         LineNumber,
         PageNumber
     }
 
     public enum MRUType
-    { 
+    {
         SearchPath,
         IncludePattern,
         ExcludePattern,
         SearchFor,
         ReplaceWith,
+    }
+
+    public enum FootnoteRefType
+    {
+        None,
+        Superscript,
+        Character,
+        Parenthesis,
+    }
+
+    public enum CommentRefType
+    {
+        None,
+        Subscript,
+        Parenthesis
+    }
+
+    public enum HeaderFooterPosition
+    {
+        SectionStart,
+        DocumentEnd
+    }
+
+    public enum NavigationToolsPosition
+    {
+        Above = 0,
+        TopLeft,
+        TopCenter,
+        TopRight,
+        BottomLeft,
+        BottomCenter,
+        BottomRight,
+        LeftTop,
+        LeftCenter,
+        LeftBottom,
+        RightTop,
+        RightCenter,
+        RightBottom,
+    }
+
+    public enum ToolSize
+    {
+        Small = 0,
+        Medium = 1,
+        Large = 2,
     }
 
 }

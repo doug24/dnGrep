@@ -36,7 +36,7 @@ namespace dnGREP.Common
             return -1;
         }
 
-        public static bool ConstainsNotEscaped(this string input, string toCheck)
+        public static bool ContainsNotEscaped(this string input, string toCheck)
         {
             bool found = false;
             int startIndex = 0;
@@ -136,7 +136,7 @@ namespace dnGREP.Common
         {
             if (DateTime.TryParseExact(input, "yyyy-MM-ddTHH:mm:ss.fffzzz", CultureInfo.InvariantCulture, DateTimeStyles.AssumeUniversal, out DateTime dt))
             {
-                if (input.EndsWith("00:00", StringComparison.Ordinal) || input.EndsWith("Z", StringComparison.Ordinal))
+                if (input.EndsWith("00:00", StringComparison.Ordinal) || input.EndsWith('Z'))
                 {
                     if (dt.Kind == DateTimeKind.Local)
                     {

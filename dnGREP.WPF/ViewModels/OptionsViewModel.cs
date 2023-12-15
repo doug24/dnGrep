@@ -44,13 +44,15 @@ namespace dnGREP.WPF
             foreach (string name in AppTheme.Instance.ThemeNames)
                 ThemeNames.Add(name);
 
-            CultureNames = TranslationSource.AppCultures
-                .OrderBy(kv => kv.Value, StringComparer.CurrentCulture).ToArray();
+            CultureNames =
+            [
+                .. TranslationSource.AppCultures.OrderBy(kv => kv.Value, StringComparer.CurrentCulture),
+            ];
 
-            CustomEditorTemplates = ConfigurationTemplate.EditorConfigurationTemplates.ToArray();
-            CompareApplicationTemplates = ConfigurationTemplate.CompareConfigurationTemplates.ToArray();
+            CustomEditorTemplates = [.. ConfigurationTemplate.EditorConfigurationTemplates];
+            CompareApplicationTemplates = [.. ConfigurationTemplate.CompareConfigurationTemplates];
 
-            HexLengthOptions = new List<int> { 8, 16, 32, 64, 128 };
+            HexLengthOptions = [8, 16, 32, 64, 128];
 
             hasWindowsThemes = AppTheme.HasWindowsThemes;
             AppTheme.Instance.CurrentThemeChanged += (s, e) =>
@@ -142,7 +144,8 @@ namespace dnGREP.WPF
         private const string Match = "%match";
         private const string Column = "%column";
         private const string ArchiveNameKey = "Archive";
-        private const string Enabledkey = "Enabled";
+        private const string CustomNameKey = " Custom";
+        private const string EnabledKey = "Enabled";
         private const string PreviewTextKey = "PreviewText";
         private static GrepSettings Settings => GrepSettings.Instance;
         #endregion
@@ -166,9 +169,14 @@ namespace dnGREP.WPF
                 ContextLinesAfter != Settings.Get<int>(GrepSettings.Key.ContextLinesAfter) ||
                 CustomEditorPath != Settings.Get<string>(GrepSettings.Key.CustomEditor) ||
                 CustomEditorArgs != Settings.Get<string>(GrepSettings.Key.CustomEditorArgs) ||
+                EscapeQuotesInMatchArgument != Settings.Get<bool>(GrepSettings.Key.EscapeQuotesInMatchArgument) ||
                 CompareApplicationPath != Settings.Get<string>(GrepSettings.Key.CompareApplication) ||
                 CompareApplicationArgs != Settings.Get<string>(GrepSettings.Key.CompareApplicationArgs) ||
                 ShowFilePathInResults != Settings.Get<bool>(GrepSettings.Key.ShowFilePathInResults) ||
+                ShowFileErrorsInResults != Settings.Get<bool>(GrepSettings.Key.ShowFileErrorsInResults) ||
+                NavigationButtonsVisible != Settings.Get<bool>(GrepSettings.Key.NavigationButtonsVisible) ||
+                NavigationToolsPosition != Settings.Get<NavigationToolsPosition>(GrepSettings.Key.NavToolsPosition) ||
+                NavigationToolsSize != Settings.Get<ToolSize>(GrepSettings.Key.NavToolsSize) ||
                 AllowSearchWithEmptyPattern != Settings.Get<bool>(GrepSettings.Key.AllowSearchingForFileNamePattern) ||
                 DetectEncodingForFileNamePattern != Settings.Get<bool>(GrepSettings.Key.DetectEncodingForFileNamePattern) ||
                 AutoExpandSearchTree != Settings.Get<bool>(GrepSettings.Key.ExpandResults) ||
@@ -204,6 +212,13 @@ namespace dnGREP.WPF
                 HexResultByteLength != Settings.Get<int>(GrepSettings.Key.HexResultByteLength) ||
                 PdfToTextOptions != Settings.Get<string>(GrepSettings.Key.PdfToTextOptions) ||
                 PdfNumberStyle != Settings.Get<PdfNumberType>(GrepSettings.Key.PdfNumberStyle) ||
+                WordExtractFootnotes != Settings.Get<bool>(GrepSettings.Key.WordExtractFootnotes) ||
+                WordFootnoteReference != Settings.Get<FootnoteRefType>(GrepSettings.Key.WordFootnoteReference) ||
+                WordExtractComments != Settings.Get<bool>(GrepSettings.Key.WordExtractComments) ||
+                WordCommentReference != Settings.Get<CommentRefType>(GrepSettings.Key.WordCommentReference) ||
+                WordExtractHeaders != Settings.Get<bool>(GrepSettings.Key.WordExtractHeaders) ||
+                WordExtractFooters != Settings.Get<bool>(GrepSettings.Key.WordExtractFooters) ||
+                WordHeaderFooterPosition != Settings.Get<HeaderFooterPosition>(GrepSettings.Key.WordHeaderFooterPosition) ||
                 ArchiveOptions.IsChanged ||
                 IsChanged(Plugins) ||
                 IsChanged(VisibilityOptions)
@@ -236,7 +251,7 @@ namespace dnGREP.WPF
 
         public List<int> HexLengthOptions { get; }
 
-        public ObservableCollection<PluginOptions> Plugins { get; } = new();
+        public ObservableCollection<PluginOptions> Plugins { get; } = [];
 
         public static IList<FontInfo> FontFamilies
         {
@@ -283,9 +298,9 @@ namespace dnGREP.WPF
             }
         }
 
-        public ObservableCollection<VisibilityOption> VisibilityOptions { get; } = new();
+        public ObservableCollection<VisibilityOption> VisibilityOptions { get; } = [];
 
-        public ObservableCollection<string> ThemeNames { get; } = new();
+        public ObservableCollection<string> ThemeNames { get; } = [];
 
 
         [ObservableProperty]
@@ -371,6 +386,12 @@ namespace dnGREP.WPF
         private string customEditorArgs = string.Empty;
 
         [ObservableProperty]
+        private bool escapeQuotesInMatchArgument = true;
+
+        [ObservableProperty]
+        private string escapeQuotesLabel = string.Empty;
+
+        [ObservableProperty]
         private string customEditorHelp = string.Empty;
 
         [ObservableProperty]
@@ -388,6 +409,33 @@ namespace dnGREP.WPF
 
         [ObservableProperty]
         private bool showFilePathInResults;
+
+        [ObservableProperty]
+        private bool showFileErrorsInResults;
+
+        [ObservableProperty]
+        private bool navigationButtonsVisible;
+
+        partial void OnNavigationButtonsVisibleChanged(bool value)
+        {
+            NavigationToolsViewModel.Instance.ChangeNavigationToolsPosition(value, NavigationToolsPosition);
+        }
+
+        [ObservableProperty]
+        private NavigationToolsPosition navigationToolsPosition;
+
+        partial void OnNavigationToolsPositionChanged(NavigationToolsPosition value)
+        {
+            NavigationToolsViewModel.Instance.ChangeNavigationToolsPosition(NavigationButtonsVisible, value);
+        }
+
+        [ObservableProperty]
+        private ToolSize navigationToolsSize;
+
+        partial void OnNavigationToolsSizeChanged(ToolSize value)
+        {
+            NavigationToolsViewModel.Instance.ChangeNavigationToolsSize(EditMainFormFontSize, value);
+        }
 
         [ObservableProperty]
         private bool showLinesInContext;
@@ -492,6 +540,27 @@ namespace dnGREP.WPF
         private PdfNumberType pdfNumberStyle = PdfNumberType.PageNumber;
 
         [ObservableProperty]
+        private bool wordExtractComments = false;
+
+        [ObservableProperty]
+        private FootnoteRefType wordFootnoteReference = FootnoteRefType.None;
+
+        [ObservableProperty]
+        private bool wordExtractFootnotes = false;
+
+        [ObservableProperty]
+        private CommentRefType wordCommentReference = CommentRefType.None;
+
+        [ObservableProperty]
+        private bool wordExtractHeaders = false;
+
+        [ObservableProperty]
+        private bool wordExtractFooters = false;
+
+        [ObservableProperty]
+        private HeaderFooterPosition wordHeaderFooterPosition = HeaderFooterPosition.SectionStart;
+
+        [ObservableProperty]
         private PluginOptions archiveOptions;
 
         [ObservableProperty]
@@ -520,6 +589,11 @@ namespace dnGREP.WPF
 
         [ObservableProperty]
         private double editMainFormFontSize;
+
+        partial void OnEditMainFormFontSizeChanged(double value)
+        {
+            NavigationToolsViewModel.Instance.ChangeNavigationToolsSize(value, NavigationToolsSize);
+        }
 
         [ObservableProperty]
         private double replaceFormFontSize;
@@ -571,13 +645,13 @@ namespace dnGREP.WPF
         /// <summary>
         /// Returns a command that clears old searches.
         /// </summary>
-        public ICommand ClearSearchesCommand => new RelayCommand(
+        public static ICommand ClearSearchesCommand => new RelayCommand(
             param => ClearSearches());
 
         /// <summary>
         /// Returns a command that reloads the current theme file.
         /// </summary>
-        public ICommand ReloadThemeCommand => new RelayCommand(
+        public static ICommand ReloadThemeCommand => new RelayCommand(
             param => AppTheme.Instance.ReloadCurrentTheme());
 
         /// <summary>
@@ -690,9 +764,14 @@ namespace dnGREP.WPF
             CheckForUpdatesInterval = Settings.Get<int>(GrepSettings.Key.UpdateCheckInterval);
             CustomEditorPath = Settings.Get<string>(GrepSettings.Key.CustomEditor);
             CustomEditorArgs = Settings.Get<string>(GrepSettings.Key.CustomEditorArgs);
+            EscapeQuotesInMatchArgument = Settings.Get<bool>(GrepSettings.Key.EscapeQuotesInMatchArgument);
             CompareApplicationPath = Settings.Get<string>(GrepSettings.Key.CompareApplication);
             CompareApplicationArgs = Settings.Get<string>(GrepSettings.Key.CompareApplicationArgs);
             ShowFilePathInResults = Settings.Get<bool>(GrepSettings.Key.ShowFilePathInResults);
+            ShowFileErrorsInResults = Settings.Get<bool>(GrepSettings.Key.ShowFileErrorsInResults);
+            NavigationButtonsVisible = Settings.Get<bool>(GrepSettings.Key.NavigationButtonsVisible);
+            NavigationToolsPosition = Settings.Get<NavigationToolsPosition>(GrepSettings.Key.NavToolsPosition);
+            NavigationToolsSize = Settings.Get<ToolSize>(GrepSettings.Key.NavToolsSize);
             AllowSearchWithEmptyPattern = Settings.Get<bool>(GrepSettings.Key.AllowSearchingForFileNamePattern);
             DetectEncodingForFileNamePattern = Settings.Get<bool>(GrepSettings.Key.DetectEncodingForFileNamePattern);
             AutoExpandSearchTree = Settings.Get<bool>(GrepSettings.Key.ExpandResults);
@@ -733,6 +812,8 @@ namespace dnGREP.WPF
             ResultsFontSize = EditResultsFontSize =
                 ValueOrDefault(GrepSettings.Key.ResultsFontSize, SystemFonts.MessageFontSize);
 
+            escapeQuotesLabel = TranslationSource.Format(Resources.Options_CustomEditorEscapeQuotes, Match);
+
             int count = TranslationSource.CountPlaceholders(Resources.Options_CustomEditorHelp);
             if (count == 5)
             {
@@ -754,26 +835,47 @@ namespace dnGREP.WPF
             PdfToTextOptions = Settings.Get<string>(GrepSettings.Key.PdfToTextOptions);
             PdfNumberStyle = Settings.Get<PdfNumberType>(GrepSettings.Key.PdfNumberStyle);
 
-            {
-                string extensionList = string.Join(", ", Settings.GetExtensionList(ArchiveNameKey,
-                    ArchiveDirectory.DefaultExtensions));
+            WordExtractFootnotes = Settings.Get<bool>(GrepSettings.Key.WordExtractFootnotes);
+            WordFootnoteReference = Settings.Get<FootnoteRefType>(GrepSettings.Key.WordFootnoteReference);
+            WordExtractComments = Settings.Get<bool>(GrepSettings.Key.WordExtractComments);
+            WordCommentReference = Settings.Get<CommentRefType>(GrepSettings.Key.WordCommentReference);
+            WordExtractHeaders = Settings.Get<bool>(GrepSettings.Key.WordExtractHeaders);
+            WordExtractFooters = Settings.Get<bool>(GrepSettings.Key.WordExtractFooters);
+            WordHeaderFooterPosition = Settings.Get<HeaderFooterPosition>(GrepSettings.Key.WordHeaderFooterPosition);
 
-                archiveOptions = new PluginOptions(ArchiveNameKey, true, false,
-                    extensionList, string.Join(", ", ArchiveDirectory.DefaultExtensions));
+            {
+                var list = Settings.GetExtensionList(ArchiveNameKey, ArchiveDirectory.DefaultExtensions);
+                string extensionList = string.Join(", ", list);
+
+                // added new default extension, "lib" - add it to the user's config
+                if (!list.Contains("lib"))
+                {
+                    list.Add("lib");
+                    extensionList = string.Join(", ", list);
+                    Settings.SetExtensions(ArchiveNameKey, extensionList);
+                }
+
+                string customExtensionList = string.Join(", ", Settings.GetExtensionList(ArchiveNameKey + CustomNameKey, []));
+
+                ArchiveOptions = new PluginOptions(ArchiveNameKey, true, false,
+                    extensionList, string.Join(", ", ArchiveDirectory.DefaultExtensions),
+                    customExtensionList);
             }
 
             Plugins.Clear();
             foreach (var plugin in GrepEngineFactory.AllPlugins.OrderBy(p => p.Name))
             {
                 string nameKey = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(plugin.Name);
-                string enabledkey = nameKey + Enabledkey;
+                string enabledKey = nameKey + EnabledKey;
                 string previewTextKey = nameKey + PreviewTextKey;
-                string extensionList = string.Join(", ", Settings.GetExtensionList(nameKey,
-                    plugin.DefaultExtensions));
+                string extensionList = string.Join(", ",
+                    Settings.GetExtensionList(nameKey, plugin.DefaultExtensions));
+                string customExtensionList = string.Join(", ",
+                    Settings.GetExtensionList(nameKey + CustomNameKey, []));
 
                 bool isEnabled = true;
-                if (GrepSettings.Instance.ContainsKey(enabledkey))
-                    isEnabled = GrepSettings.Instance.Get<bool>(enabledkey);
+                if (GrepSettings.Instance.ContainsKey(enabledKey))
+                    isEnabled = GrepSettings.Instance.Get<bool>(enabledKey);
 
                 bool previewTextEnabled = true;
                 if (GrepSettings.Instance.ContainsKey(previewTextKey))
@@ -781,7 +883,8 @@ namespace dnGREP.WPF
 
                 var pluginOptions = new PluginOptions(
                     plugin.Name, isEnabled, previewTextEnabled,
-                    extensionList, string.Join(", ", plugin.DefaultExtensions));
+                    extensionList, string.Join(", ", plugin.DefaultExtensions),
+                    customExtensionList);
 
                 Plugins.Add(pluginOptions);
             }
@@ -842,9 +945,14 @@ namespace dnGREP.WPF
             Settings.Set(GrepSettings.Key.UpdateCheckInterval, CheckForUpdatesInterval);
             Settings.Set(GrepSettings.Key.CustomEditor, CustomEditorPath);
             Settings.Set(GrepSettings.Key.CustomEditorArgs, CustomEditorArgs);
+            Settings.Set(GrepSettings.Key.EscapeQuotesInMatchArgument, EscapeQuotesInMatchArgument);
             Settings.Set(GrepSettings.Key.CompareApplication, CompareApplicationPath);
             Settings.Set(GrepSettings.Key.CompareApplicationArgs, CompareApplicationArgs);
             Settings.Set(GrepSettings.Key.ShowFilePathInResults, ShowFilePathInResults);
+            Settings.Set(GrepSettings.Key.ShowFileErrorsInResults, ShowFileErrorsInResults);
+            Settings.Set(GrepSettings.Key.NavigationButtonsVisible, NavigationButtonsVisible);
+            Settings.Set(GrepSettings.Key.NavToolsPosition, NavigationToolsPosition);
+            Settings.Set(GrepSettings.Key.NavToolsSize, NavigationToolsSize);
             Settings.Set(GrepSettings.Key.AllowSearchingForFileNamePattern, AllowSearchWithEmptyPattern);
             Settings.Set(GrepSettings.Key.DetectEncodingForFileNamePattern, DetectEncodingForFileNamePattern);
             Settings.Set(GrepSettings.Key.ExpandResults, AutoExpandSearchTree);
@@ -880,6 +988,13 @@ namespace dnGREP.WPF
             Settings.Set(GrepSettings.Key.HexResultByteLength, HexResultByteLength);
             Settings.Set(GrepSettings.Key.PdfToTextOptions, PdfToTextOptions);
             Settings.Set(GrepSettings.Key.PdfNumberStyle, PdfNumberStyle);
+            Settings.Set(GrepSettings.Key.WordExtractFootnotes, WordExtractFootnotes);
+            Settings.Set(GrepSettings.Key.WordFootnoteReference, WordFootnoteReference);
+            Settings.Set(GrepSettings.Key.WordExtractComments, WordExtractComments);
+            Settings.Set(GrepSettings.Key.WordCommentReference, WordCommentReference);
+            Settings.Set(GrepSettings.Key.WordExtractHeaders, WordExtractHeaders);
+            Settings.Set(GrepSettings.Key.WordExtractFooters, WordExtractFooters);
+            Settings.Set(GrepSettings.Key.WordHeaderFooterPosition, WordHeaderFooterPosition);
 
             foreach (var visOpt in VisibilityOptions)
             {
@@ -892,6 +1007,7 @@ namespace dnGREP.WPF
             if (ArchiveOptions.IsChanged)
             {
                 Settings.SetExtensions(ArchiveNameKey, ArchiveOptions.MappedExtensions);
+                Settings.SetExtensions(ArchiveNameKey + CustomNameKey, ArchiveOptions.CustomExtensions);
 
                 ArchiveOptions.SetUnchanged();
                 ArchiveDirectory.Reinitialize();
@@ -901,12 +1017,13 @@ namespace dnGREP.WPF
             foreach (var plugin in Plugins)
             {
                 string nameKey = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(plugin.Name);
-                string enabledkey = nameKey + Enabledkey;
+                string enabledkey = nameKey + EnabledKey;
                 string previewTextKey = nameKey + PreviewTextKey;
 
                 Settings.Set(enabledkey, plugin.IsEnabled);
                 Settings.Set(previewTextKey, plugin.PreviewTextEnabled);
                 Settings.SetExtensions(nameKey, plugin.MappedExtensions);
+                Settings.SetExtensions(nameKey + CustomNameKey, plugin.CustomExtensions);
 
                 plugin.SetUnchanged();
             }
@@ -956,7 +1073,8 @@ namespace dnGREP.WPF
             {
                 try
                 {
-                    var assemblyPath = Assembly.GetAssembly(typeof(OptionsView))?.Location;
+                    var assemblyPath = Assembly.GetAssembly(typeof(OptionsView))?.Location
+                        .Replace("dll", "exe", StringComparison.OrdinalIgnoreCase);
                     if (assemblyPath != null)
                     {
                         if (location == "here")
@@ -1077,7 +1195,8 @@ namespace dnGREP.WPF
                 {
                     string regPath = @"Software\Microsoft\Windows\CurrentVersion\Run";
 
-                    var assemblyPath = Assembly.GetAssembly(typeof(OptionsView))?.Location;
+                    var assemblyPath = Assembly.GetAssembly(typeof(OptionsView))?.Location
+                        .Replace("dll", "exe", StringComparison.OrdinalIgnoreCase);
                     if (assemblyPath != null)
                     {
                         using RegistryKey? key = Registry.CurrentUser.OpenSubKey(regPath, true);
@@ -1152,18 +1271,20 @@ namespace dnGREP.WPF
     public partial class PluginOptions : CultureAwareViewModel
     {
         public PluginOptions(string name, bool enabled, bool previewTextEnabled,
-            string extensions, string defaultExtensions)
+            string extensions, string defaultExtensions, string customExtensions)
         {
             Name = name;
             IsEnabled = origIsEnabled = enabled;
             PreviewTextEnabled = origPreviewTextEnabled = previewTextEnabled;
             MappedExtensions = origMappedExtensions = extensions;
             DefaultExtensions = defaultExtensions ?? string.Empty;
+            CustomExtensions = origCustomExtensions = customExtensions ?? string.Empty;
         }
 
         public bool IsChanged => IsEnabled != origIsEnabled ||
             PreviewTextEnabled != origPreviewTextEnabled ||
-            MappedExtensions != origMappedExtensions;
+            MappedExtensions != origMappedExtensions ||
+            CustomExtensions != origCustomExtensions;
 
         [ObservableProperty]
         private string name = string.Empty;
@@ -1183,6 +1304,12 @@ namespace dnGREP.WPF
 
         public string DefaultExtensions { get; private set; }
 
+
+        [ObservableProperty]
+        private string customExtensions = string.Empty;
+        private string origCustomExtensions = string.Empty;
+
+
         public ICommand ResetExtensions => new RelayCommand(
             p => MappedExtensions = DefaultExtensions,
             q => !MappedExtensions.Equals(DefaultExtensions, StringComparison.Ordinal));
@@ -1193,6 +1320,7 @@ namespace dnGREP.WPF
             origIsEnabled = IsEnabled;
             origPreviewTextEnabled = PreviewTextEnabled;
             origMappedExtensions = MappedExtensions;
+            origCustomExtensions = CustomExtensions;
         }
     }
 
@@ -1232,15 +1360,10 @@ namespace dnGREP.WPF
     }
 
 
-    public class FontInfo
+    public class FontInfo(string familyName)
     {
-        public FontInfo(string familyName)
-        {
-            FamilyName = familyName;
-            IsMonospaced = GetIsMonospaced(familyName);
-        }
-        public string FamilyName { get; private set; }
-        public bool IsMonospaced { get; private set; }
+        public string FamilyName { get; private set; } = familyName;
+        public bool IsMonospaced { get; private set; } = GetIsMonospaced(familyName);
 
         private static bool GetIsMonospaced(string familyName)
         {

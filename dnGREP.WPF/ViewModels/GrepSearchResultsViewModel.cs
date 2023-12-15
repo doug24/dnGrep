@@ -28,11 +28,17 @@ namespace dnGREP.WPF
 
         public GrepSearchResultsViewModel()
         {
-            SelectedNodes = new ObservableCollection<ITreeItem>();
+            SelectedNodes = [];
             SelectedNodes.CollectionChanged += SelectedNodes_CollectionChanged;
             SearchResults.CollectionChanged += ObservableGrepSearchResults_CollectionChanged;
 
             SearchResultsMessenger.Register<ITreeItem>("IsSelectedChanged", OnSelectionChanged);
+        }
+
+        public void Clear()
+        {
+            SearchResults.Clear();
+            FailureCount = 0;
         }
 
         public PathSearchText PathSearchText { get; internal set; } = new();
@@ -52,9 +58,9 @@ namespace dnGREP.WPF
             }
         }
 
-        private readonly Dictionary<string, BitmapSource> icons = new();
+        private readonly Dictionary<string, BitmapSource> icons = [];
 
-        public ObservableCollection<FormattedGrepResult> SearchResults { get; set; } = new();
+        public ObservableCollection<FormattedGrepResult> SearchResults { get; set; } = [];
 
         /// <summary>
         /// Gets the collection of Selected tree nodes, in the order they were selected
@@ -95,14 +101,9 @@ namespace dnGREP.WPF
             }
         }
 
-        private class SelectionComparer : IComparer<ITreeItem>
+        private class SelectionComparer(ObservableCollection<FormattedGrepResult> collection)
+            : IComparer<ITreeItem>
         {
-            private readonly ObservableCollection<FormattedGrepResult> collection;
-            public SelectionComparer(ObservableCollection<FormattedGrepResult> collection)
-            {
-                this.collection = collection;
-            }
-
             public int Compare(ITreeItem? x, ITreeItem? y)
             {
                 var fileX = x as FormattedGrepResult;
@@ -136,7 +137,7 @@ namespace dnGREP.WPF
 
         void ObservableGrepSearchResults_CollectionChanged(object? sender, NotifyCollectionChangedEventArgs e)
         {
-            List<ITreeItem> toRemove = new();
+            List<ITreeItem> toRemove = [];
             foreach (var node in SelectedNodes)
             {
                 if (node is FormattedGrepResult item && !SearchResults.Contains(item))
@@ -155,13 +156,14 @@ namespace dnGREP.WPF
                     string extension = Path.GetExtension(newEntry.GrepResult.FileNameDisplayed);
                     if (extension.Length <= 1)
                         extension = ".na";
-                    if (!icons.ContainsKey(extension))
+                    if (!icons.TryGetValue(extension, out BitmapSource? value))
                     {
                         var bitmapIcon = IconHandler.IconFromExtensionShell(extension, IconSize.Small) ??
                             Common.Properties.Resources.na_icon;
-                        icons[extension] = GetBitmapSource(bitmapIcon);
+                        value = GetBitmapSource(bitmapIcon);
+                        icons[extension] = value;
                     }
-                    newEntry.Icon = icons[extension];
+                    newEntry.Icon = value;
                 }
             }
         }
@@ -174,7 +176,7 @@ namespace dnGREP.WPF
 
         public List<GrepSearchResult> GetList()
         {
-            List<GrepSearchResult> tempList = new();
+            List<GrepSearchResult> tempList = [];
             foreach (var l in SearchResults) tempList.Add(l.GrepResult);
             return tempList;
         }
@@ -185,7 +187,7 @@ namespace dnGREP.WPF
         /// <returns></returns>
         public List<GrepSearchResult> GetWritableList()
         {
-            List<GrepSearchResult> writableFiles = new();
+            List<GrepSearchResult> writableFiles = [];
             foreach (var item in SearchResults)
             {
                 if (!Utils.IsReadOnly(item.GrepResult))
@@ -198,35 +200,46 @@ namespace dnGREP.WPF
 
         public void AddRange(List<GrepSearchResult> list)
         {
-            foreach (var l in list)
+            foreach (var r in list)
             {
-                var fmtResult = new FormattedGrepResult(l, FolderPath)
+                if (!r.IsSuccess)
                 {
-                    WrapText = WrapText
-                };
-                SearchResults.Add(fmtResult);
+                    FailureCount++;
+                }
 
-                // moved this check out of FormattedGrepResult constructor:
-                // does not work correctly in TestPatternView, which does not lazy load
-                if (GrepSettings.Instance.Get<bool>(GrepSettings.Key.ExpandResults))
+                bool showErrors = GrepSettings.Instance.Get<bool>(GrepSettings.Key.ShowFileErrorsInResults);
+                if (r.IsSuccess || showErrors)
                 {
-                    fmtResult.IsExpanded = true;
+                    var fmtResult = new FormattedGrepResult(r, FolderPath)
+                    {
+                        WrapText = WrapText
+                    };
+                    SearchResults.Add(fmtResult);
+
+                    // moved this check out of FormattedGrepResult constructor:
+                    // does not work correctly in TestPatternView, which does not lazy load
+                    if (GrepSettings.Instance.Get<bool>(GrepSettings.Key.ExpandResults))
+                    {
+                        fmtResult.IsExpanded = true;
+                    }
                 }
             }
         }
 
         public void AddRangeForTestView(List<GrepSearchResult> list)
         {
-            foreach (var l in list)
+            foreach (var r in list)
             {
-                SearchResults.Add(new FormattedGrepResult(l, FolderPath));
+                SearchResults.Add(new FormattedGrepResult(r, FolderPath));
             }
         }
 
         public void AddRange(IEnumerable<FormattedGrepResult> items)
         {
             foreach (var item in items)
+            {
                 SearchResults.Add(item);
+            }
         }
 
         public string FolderPath { get; set; } = string.Empty;
@@ -263,18 +276,28 @@ namespace dnGREP.WPF
                 item.RaiseSettingsPropertiesChanged();
             }
         }
-        public bool CustomEditorConfigured
+
+        public static bool CustomEditorConfigured
         {
             get { return GrepSettings.Instance.IsSet(GrepSettings.Key.CustomEditor); }
         }
 
-        public bool CompareApplicationConfigured
+        public static bool CompareApplicationConfigured
         {
             get { return GrepSettings.Instance.IsSet(GrepSettings.Key.CompareApplication); }
         }
 
         [ObservableProperty]
         private double resultsScale = 1.0;
+
+        [ObservableProperty]
+        [NotifyPropertyChangedFor(nameof(HasFailures))]
+        [NotifyPropertyChangedFor(nameof(FileReadErrors))]
+        public int failureCount;
+
+        public bool HasFailures => FailureCount > 0;
+
+        public string FileReadErrors => TranslationSource.Format(Resources.Error_FilesCouldNotBeSearched, FailureCount);
 
         public bool HasSelection
         {
@@ -325,9 +348,9 @@ namespace dnGREP.WPF
             p => CompareFiles(),
             q => CanCompareFiles);
 
-        private IList<GrepSearchResult> GetSelectedFiles()
+        private List<GrepSearchResult> GetSelectedFiles()
         {
-            List<GrepSearchResult> files = new();
+            List<GrepSearchResult> files = [];
             foreach (var item in SelectedItems)
             {
                 if (item is FormattedGrepResult fileNode)
@@ -426,7 +449,7 @@ namespace dnGREP.WPF
 
         internal int MatchIdx { get; set; }
 
-        internal Dictionary<string, string> GroupColors { get; } = new();
+        internal Dictionary<string, string> GroupColors { get; } = [];
 
         public static bool ShowFileInfoTooltips
         {
@@ -566,7 +589,7 @@ namespace dnGREP.WPF
                 LineNumberColumnWidth = FormattedLines.LineNumberColumnWidth;
         }
 
-        public ObservableCollection<FormattedGrepMatch> FormattedMatches { get; } = new();
+        public ObservableCollection<FormattedGrepMatch> FormattedMatches { get; } = [];
 
         [ObservableProperty]
         private bool wrapText;
@@ -914,7 +937,7 @@ namespace dnGREP.WPF
         private string FormatHexValues(GrepLine grepLine)
         {
             string[] parts = grepLine.LineText.TrimEnd().Split(' ');
-            List<byte> list = new();
+            List<byte> list = [];
             foreach (string num in parts)
             {
                 if (byte.TryParse(num, System.Globalization.NumberStyles.HexNumber, null, out byte result))
@@ -923,7 +946,7 @@ namespace dnGREP.WPF
                 }
             }
             string text = Parent.GrepResult.Encoding.GetString(list.ToArray());
-            List<char> nonPrintableChars = new();
+            List<char> nonPrintableChars = [];
             for (int idx = 0; idx < text.Length; idx++)
             {
                 if (!char.IsLetterOrDigit(text[idx]) && !char.IsPunctuation(text[idx]) && text[idx] != ' ')
@@ -941,7 +964,7 @@ namespace dnGREP.WPF
         private class GroupMap
         {
             private readonly int start;
-            private readonly List<Range> ranges = new();
+            private readonly List<Range> ranges = [];
             public GroupMap(GrepMatch match, string text)
             {
                 start = match.StartLocation;
@@ -1028,25 +1051,17 @@ namespace dnGREP.WPF
             }
         }
 
-        private class Range : IComparable<Range>, IComparable, IEquatable<Range>
+        private class Range(int start, int end, GroupMap parent, GrepCaptureGroup? group)
+            : IComparable<Range>, IComparable, IEquatable<Range>
         {
-            private readonly GroupMap parentMap;
-            public Range(int start, int end, GroupMap parent, GrepCaptureGroup? group)
-            {
-                Start = Math.Min(start, end);
-                End = Math.Max(start, end);
-                parentMap = parent;
-                Group = group;
-            }
-
-            public int Start { get; }
-            public int End { get; }
+            public int Start { get; } = Math.Min(start, end);
+            public int End { get; } = Math.Max(start, end);
 
             public int Length { get { return End - Start; } }
 
-            public string RangeText { get { return parentMap.MatchText.Substring(Start, Length); } }
+            public string RangeText { get { return parent.MatchText.Substring(Start, Length); } }
 
-            public GrepCaptureGroup? Group { get; }
+            public GrepCaptureGroup? Group { get; } = group;
 
             public int CompareTo(object? obj)
             {

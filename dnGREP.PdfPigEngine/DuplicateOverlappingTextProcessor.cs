@@ -23,7 +23,7 @@
         {
             if (letters?.Any() != true)
             {
-                return letters?.ToList() ?? new List<Letter>();
+                return letters?.ToList() ?? [];
             }
 
             var queue = new Queue<Letter>(letters);

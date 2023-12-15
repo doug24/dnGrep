@@ -30,7 +30,7 @@ namespace dnGREP.WPF
         /// <summary>
         /// The ordered list of line numbers from the original source file
         /// </summary>
-        public List<int> LineNumbers { get; } = new List<int>();
+        public List<int> LineNumbers { get; } = [];
 
         private readonly Brush? skipBackground = Application.Current.Resources["Match.Skip.Background"] as Brush;
         private readonly Brush? replBackground = Application.Current.Resources["Match.Replace.Background"] as Brush;
@@ -101,9 +101,9 @@ namespace dnGREP.WPF
                     Pen? markerPen = isSelected ? outlinePen : null;
                     double markerPenThickness = markerPen != null ? markerPen.Thickness : 0;
 
-                    int startOffset = grepMatch.StartLocation;
+                    int startOffset = grepMatch.DisplayStartLocation;
                     // match may include the non-printing newline chars at the end of the line, don't overflow the length
-                    int endOffset = Math.Min(visLine.VisualLength, grepMatch.StartLocation + grepMatch.Length);
+                    int endOffset = Math.Min(visLine.VisualLength, grepMatch.DisplayStartLocation + grepMatch.Length);
 
                     var rects = BackgroundGeometryBuilder.GetRectsFromVisualSegment(textView, visLine, startOffset, endOffset);
                     if (rects.Any())

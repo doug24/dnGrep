@@ -13,6 +13,8 @@ namespace dnGREP.WPF
 {
     public partial class CommandLineArgs
     {
+        private const string appName = "dnGREP.exe";
+
         public CommandLineArgs(string commandLine)
         {
             // Getting the arguments from Environment.GetCommandLineArgs() or StartupEventArgs 
@@ -29,25 +31,29 @@ namespace dnGREP.WPF
 
         private static string[] SplitCommandLine(string line)
         {
-            List<string> result = new();
+            List<string> result = [];
             foreach (string arg in ParseLine(line))
             {
-                string s = arg.Trim();
-                if (!string.IsNullOrEmpty(s))
+                string token = arg.Trim();
+                if (!string.IsNullOrEmpty(token))
                 {
-                    result.Add(s);
+                    result.Add(token);
                 }
             }
-            return result.Skip(1).ToArray(); // Drop the program path, and return array of all strings
+            return result.Skip(1).ToArray(); // skip the app and return array of all strings
         }
 
-        private static IEnumerable<string> ParseLine(string input)
+        internal static IEnumerable<string> ParseLine(string input)
         {
             int startPosition = 0;
             bool isInQuotes = false;
+            char prevChar = '\0';
             for (int currentPosition = 0; currentPosition < input.Length; currentPosition++)
             {
-                if (input[currentPosition] == '\"')
+                // checking prevChar for quote allows this pattern:
+                // -folder ""c:\folder 1";"c:\folder 2""
+
+                if (input[currentPosition] == '\"' && prevChar != '\"')
                 {
                     isInQuotes = !isInQuotes;
                 }
@@ -56,6 +62,8 @@ namespace dnGREP.WPF
                     yield return input[startPosition..currentPosition];
                     startPosition = currentPosition + 1;
                 }
+
+                prevChar = input[currentPosition];
             }
 
             string lastToken = input[startPosition..];
@@ -69,54 +77,52 @@ namespace dnGREP.WPF
             }
         }
 
-        private static readonly List<char> separators = new() { ',', ';' };
+        private static readonly List<char> separators = [',', ';'];
 
         private static string FormatPathArgs(string input)
         {
-            List<string> parts = new();
-            int startPosition = 0;
-            bool isInQuotes = false;
-            for (int currentPosition = 0; currentPosition < input.Length; currentPosition++)
+            if (input.IndexOfAny([.. separators]) > -1)
             {
-                if (input[currentPosition] == '\"')
+                List<string> parts = [];
+                string[] split = input.Split([.. separators]);
+
+                foreach (string part in split)
                 {
-                    isInQuotes = !isInQuotes;
-                }
-                else if (separators.Contains(input[currentPosition]) && !isInQuotes)
-                {
-                    string token = input[startPosition..currentPosition];
-                    token = StripQuotes(token);
-                    token = UiUtils.QuoteIfNeeded(token);
+                    string token = part.Replace("\"\"", "\"", StringComparison.Ordinal);
+                    if (token.StartsWith('\"') && !token.EndsWith('\"'))
+                    {
+                        token = token.TrimStart('\"');
+                    }
+                    if (token.EndsWith('\"') && !token.StartsWith('\"'))
+                    {
+                        token = token.TrimEnd('\"');
+                    }
                     if (!string.IsNullOrWhiteSpace(token))
                     {
                         parts.Add(token);
                     }
-
-                    startPosition = currentPosition + 1;
                 }
-            }
 
-            string lastToken = input[startPosition..];
-            lastToken = StripQuotes(lastToken);
-            lastToken = UiUtils.QuoteIfNeeded(lastToken);
-            if (!string.IsNullOrWhiteSpace(lastToken))
+                return string.Join(";", parts);
+            }
+            else
             {
-                parts.Add(lastToken);
+                string path = StripQuotes(input);
+                path = UiUtils.QuoteIfNeeded(path);
+                return path;
             }
-
-            return string.Join(";", parts);
         }
 
-        private static string StripQuotes(string input)
+        internal static string StripQuotes(string input)
         {
-            if (input.Length > 2 && input.StartsWith("\"", StringComparison.Ordinal) && input.EndsWith("\"", StringComparison.Ordinal))
+            if (input.Length > 2 && input.StartsWith('"') && input.EndsWith('"'))
             {
                 input = input[1..^1];
             }
             return input;
         }
 
-        private readonly List<string> pathFlags = new() { "/f", "-f", "-folder" };
+        private static readonly HashSet<string> pathFlags = [ "/f", "-f", "-folder" ];
 
         private void EvaluateArgs(string[] args)
         {
@@ -129,8 +135,7 @@ namespace dnGREP.WPF
                 if (!string.IsNullOrEmpty(arg))
                 {
                     // old style command line args
-                    if (idx < 2 && !(arg.StartsWith("/", StringComparison.Ordinal) ||
-                          arg.StartsWith("-", StringComparison.Ordinal)))
+                    if (idx < 2 && !(arg.StartsWith('/') || arg.StartsWith('-')))
                     {
                         if (idx == 0)
                         {
@@ -233,7 +238,7 @@ namespace dnGREP.WPF
                             case "/pt":
                             case "-pt":
                             case "-patterntype":
-                                if (!string.IsNullOrWhiteSpace(value) && 
+                                if (!string.IsNullOrWhiteSpace(value) &&
                                     Enum.TryParse(value, out FileSearchType tofs) &&
                                     Enum.IsDefined(tofs))
                                 {
@@ -268,7 +273,7 @@ namespace dnGREP.WPF
                             case "/st":
                             case "-st":
                             case "-searchtype":
-                                if (!string.IsNullOrWhiteSpace(value) && 
+                                if (!string.IsNullOrWhiteSpace(value) &&
                                     Enum.TryParse(value, out SearchType tos) &&
                                     Enum.IsDefined(tos))
                                 {
@@ -360,7 +365,7 @@ namespace dnGREP.WPF
                             case "/mode":
                             case "-mode":
                             case "-reportmode":
-                                if (!string.IsNullOrWhiteSpace(value) && 
+                                if (!string.IsNullOrWhiteSpace(value) &&
                                     Enum.TryParse(value, out ReportMode rm) &&
                                     Enum.IsDefined(rm))
                                 {
@@ -422,7 +427,7 @@ namespace dnGREP.WPF
                             case "/scope":
                             case "-scope":
                             case "-uniquescope":
-                                if (!string.IsNullOrWhiteSpace(value) && 
+                                if (!string.IsNullOrWhiteSpace(value) &&
                                     Enum.TryParse(value, out UniqueScope scope) &&
                                     Enum.IsDefined(scope))
                                 {

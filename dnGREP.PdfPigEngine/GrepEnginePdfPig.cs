@@ -20,7 +20,7 @@ namespace dnGREP.Engines.PdfPig
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        public IList<string> DefaultFileExtensions => new string[] { "pdf" };
+        public List<string> DefaultFileExtensions => ["pdf"];
 
         public bool IsSearchOnly => true;
 
@@ -62,11 +62,11 @@ namespace dnGREP.Engines.PdfPig
             GrepSearchOption searchOptions, SearchDelegates.DoSearch searchMethod,
             PauseCancelToken pauseCancelToken)
         {
-            List<GrepSearchResult> searchResults = new();
+            List<GrepSearchResult> searchResults = [];
 
             try
             {
-                List<int> wrapIndexes = new();
+                List<int> wrapIndexes = [];
                 var text = ExtractText(input, wrapIndexes, pauseCancelToken);
 
                 var matches = searchMethod(-1, 0, text, searchPattern,
@@ -229,7 +229,7 @@ namespace dnGREP.Engines.PdfPig
                 }
             }
 
-            if (annotations.Any())
+            if (annotations.Count != 0)
             {
                 foreach (var annot in annotations)
                 {
@@ -282,9 +282,9 @@ namespace dnGREP.Engines.PdfPig
             return count;
         }
 
-        private static IList<TextRow> GroupByLines(IReadOnlyList<Letter> letters, PauseCancelToken pauseCancelToken)
+        private static List<TextRow> GroupByLines(IReadOnlyList<Letter> letters, PauseCancelToken pauseCancelToken)
         {
-            List<TextRow> list = new();
+            List<TextRow> list = [];
 
             foreach (var letter in letters)
             {
@@ -331,13 +331,13 @@ namespace dnGREP.Engines.PdfPig
             return false;
         }
 
-        private static readonly HashSet<string> ReplaceableWhitespace = new()
-        {
+        private static readonly HashSet<string> ReplaceableWhitespace =
+        [
             "\t",
             "\v",
             "\r",
             "\f"
-        };
+        ];
 
         private static string SeparateLigature(string input)
         {

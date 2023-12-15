@@ -51,7 +51,25 @@ namespace dnGREP.Common
             }
         }
 
-        public List<GrepCaptureGroup> Groups { get; } = new List<GrepCaptureGroup>();
+        private int displayStartLocation = -1;
+        /// <summary>
+        /// Gets or sets the start of match location for display. Returns the StartLocation
+        /// for normal lines/files, or a modified start location if a long line gets chopped
+        /// up to show only matches and context for long lines
+        /// </summary>
+        public int DisplayStartLocation
+        {
+            get
+            {
+                return (displayStartLocation == -1) ? StartLocation : displayStartLocation;
+            }
+            set
+            {
+                displayStartLocation = value;
+            }
+        }
+
+        public List<GrepCaptureGroup> Groups { get; } = [];
 
         public string SearchPattern { get; private set; }
 

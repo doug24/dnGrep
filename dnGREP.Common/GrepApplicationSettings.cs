@@ -78,6 +78,8 @@ namespace dnGREP.Common
             [DefaultValue(true)]
             public const string ShowFilePathInResults = "ShowFilePathInResults";
             [DefaultValue(true)]
+            public const string ShowFileErrorsInResults = "ShowFileErrorsInResults";
+            [DefaultValue(true)]
             public const string AllowSearchingForFileNamePattern = "AllowSearchingForFileNamePattern";
             [DefaultValue(true)]
             public const string DetectEncodingForFileNamePattern = "DetectEncodingForFileNamePattern";
@@ -139,6 +141,8 @@ namespace dnGREP.Common
             public const string TypeOfSort = "TypeOfSort";
             [DefaultValue(ListSortDirection.Ascending)]
             public const string SortDirection = "SortDirection";
+            [DefaultValue(true)]
+            public const string NaturalSort = "NaturalSort";
             [DefaultValue(true)]
             public const string ShowFileInfoTooltips = "ShowFileInfoTooltips";
             [DefaultValue(true)]
@@ -258,6 +262,12 @@ namespace dnGREP.Common
             public const string WrapTextPreviewWndVisible = "WrapTextPreviewWndVisible";
             [DefaultValue(true)]
             public const string SyntaxPreviewWndVisible = "SyntaxPreviewWndVisible";
+            [DefaultValue(true)]
+            public const string NavigationButtonsVisible = "NavigationButtonsVisible";
+            [DefaultValue(ToolSize.Small)]
+            public const string NavToolsSize = "NavToolsSize";
+            [DefaultValue(NavigationToolsPosition.LeftTop)]
+            public const string NavToolsPosition = "NavToolsPosition";
             [DefaultValue(Common.ReportMode.FullLine)]
             public const string ReportMode = "ReportMode";
             [DefaultValue(true)]
@@ -302,6 +312,28 @@ namespace dnGREP.Common
             public const string ConfirmExitSearch = "ConfirmExitSearch";
             [DefaultValue(10.0)]
             public const string ConfirmExitSearchDuration = "ConfirmExitSearchDuration";
+            [DefaultValue(false)]
+            public const string WordExtractFootnotes = "WordExtractFootnotes";
+            [DefaultValue(FootnoteRefType.None)]
+            public const string WordFootnoteReference = "WordFootnoteReference";
+            [DefaultValue(false)]
+            public const string WordExtractComments = "WordExtractComments";
+            [DefaultValue(CommentRefType.None)]
+            public const string WordCommentReference = "WordCommentReference";
+            [DefaultValue(false)]
+            public const string WordExtractHeaders = "WordExtractHeaders";
+            [DefaultValue(false)]
+            public const string WordExtractFooters = "WordExtractFooters";
+            [DefaultValue(HeaderFooterPosition.SectionStart)]
+            public const string WordHeaderFooterPosition = "WordHeaderFooterPosition";
+            [DefaultValue("")]
+            public const string BookmarkColumnOrder = "BookmarkColumnOrder";
+            [DefaultValue("")]
+            public const string BookmarkColumnWidths = "BookmarkColumnWidths";
+            public const string BookmarkWindowBounds = "BookmarkWindowBounds";
+            public const string BookmarkWindowState = "BookmarkWindowState";
+            [DefaultValue(true)]
+            public const string EscapeQuotesInMatchArgument = "EscapeQuotesInMatchArgument";
         }
 
         private static GrepSettings? instance;
@@ -325,7 +357,7 @@ namespace dnGREP.Common
             }
         }
 
-        private readonly Dictionary<string, string> settings = new();
+        private readonly Dictionary<string, string> settings = [];
 
         public int Version { get; private set; } = 1;
 
@@ -641,7 +673,7 @@ namespace dnGREP.Common
 
         private static List<string?> Deserialize(string xmlContent)
         {
-            List<string?> list = new();
+            List<string?> list = [];
 
             if (!string.IsNullOrEmpty(xmlContent))
             {
@@ -691,7 +723,7 @@ namespace dnGREP.Common
 
         private static List<MostRecentlyUsed> DeserializeMRU(string xmlContent)
         {
-            List<MostRecentlyUsed> list = new();
+            List<MostRecentlyUsed> list = [];
 
             if (!string.IsNullOrEmpty(xmlContent))
             {
@@ -804,7 +836,7 @@ namespace dnGREP.Common
                         }
                         else
                         {
-                            list = new();
+                            list = [];
                         }
                         return (T)Convert.ChangeType(list, typeof(List<string>));
                     }
@@ -818,7 +850,7 @@ namespace dnGREP.Common
                         }
                         else
                         {
-                            list = new List<MostRecentlyUsed>();
+                            list = [];
                         }
                         return (T)Convert.ChangeType(list, typeof(List<MostRecentlyUsed>));
                     }
@@ -988,12 +1020,13 @@ namespace dnGREP.Common
         private static bool IsNullable(Type type) => Nullable.GetUnderlyingType(type) != null;
 
         private List<FieldInfo>? constantKeys;
+        private static readonly char[] separators = [',', ';', ' '];
 
         private void InitializeConstantKeys()
         {
             if (constantKeys == null)
             {
-                constantKeys = new List<FieldInfo>();
+                constantKeys = [];
                 FieldInfo[] thisObjectProperties = typeof(Key).GetFields();
                 foreach (FieldInfo fi in thisObjectProperties)
                 {
@@ -1057,36 +1090,37 @@ namespace dnGREP.Common
             return default;
         }
 
-        public IList<string> GetExtensionList(string nameKey, IList<string> defaultExtensions)
+        public List<string> GetExtensionList(string nameKey, List<string> defaultExtensions)
         {
-            nameKey = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(nameKey);
+            nameKey = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(nameKey)
+                 .Replace(" ", "", StringComparison.Ordinal);
             string addKey = "Add" + nameKey + "Extensions";
             string remKey = "Rem" + nameKey + "Extensions";
             string listKey = nameKey + "Extensions";
 
-            List<string> list = new();
+            List<string> list = [];
 
             if (ContainsKey(listKey))
             {
                 var csv = Get<string>(listKey)?.Trim();
                 if (!string.IsNullOrEmpty(csv))
                 {
-                    string[] split = csv.Split(new char[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-                    var items = split.Select(s => s.TrimStart('.').Trim());
+                    string[] split = csv.Split(separators, StringSplitOptions.RemoveEmptyEntries);
+                    var items = split.Select(s => s.TrimStart('.').Trim().ToLowerInvariant());
 
-                    list = new List<string>(items);
+                    list = items.ToList();
                 }
             }
             else
             {
-                list = new List<string>(defaultExtensions);
+                list = defaultExtensions;
 
                 if (ContainsKey(addKey))
                 {
                     var addCsv = Get<string>(addKey)?.Trim();
                     if (!string.IsNullOrEmpty(addCsv))
                     {
-                        var parts = addCsv.Split(new char[] { ',', ';', ' ' },
+                        var parts = addCsv.Split(separators,
                             StringSplitOptions.RemoveEmptyEntries)
                             .Select(s => s.Trim(' ', '.').ToLower());
                         list.AddRange(parts);
@@ -1098,15 +1132,12 @@ namespace dnGREP.Common
                     var remCsv = Get<string>(remKey)?.Trim();
                     if (!string.IsNullOrEmpty(remCsv))
                     {
-                        var parts = remCsv.Split(new char[] { ',', ';', ' ' },
+                        var parts = remCsv.Split(separators,
                           StringSplitOptions.RemoveEmptyEntries)
                           .Select(s => s.Trim(' ', '.').ToLower());
                         foreach (var ext in parts)
                         {
-                            if (list.Contains(ext))
-                            {
-                                list.Remove(ext);
-                            }
+                            list.Remove(ext);
                         }
                     }
                 }
@@ -1117,7 +1148,8 @@ namespace dnGREP.Common
 
         public void SetExtensions(string nameKey, string extensions)
         {
-            nameKey = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(nameKey);
+            nameKey = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(nameKey)
+                .Replace(" ", "", StringComparison.Ordinal);
             string addKey = "Add" + nameKey + "Extensions";
             string remKey = "Rem" + nameKey + "Extensions";
             string listKey = nameKey + "Extensions";
@@ -1132,7 +1164,7 @@ namespace dnGREP.Common
             if (string.IsNullOrWhiteSpace(extensions))
                 return string.Empty;
 
-            string[] split = extensions.Split(new char[] { ',', ';', ' ' }, StringSplitOptions.RemoveEmptyEntries);
+            string[] split = extensions.Split(separators, StringSplitOptions.RemoveEmptyEntries);
             var cleaned = split.Select(s => s.TrimStart('.').Trim());
             return string.Join(",", cleaned);
         }

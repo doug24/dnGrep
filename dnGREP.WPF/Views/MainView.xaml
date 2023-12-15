@@ -242,7 +242,7 @@
                                Style="{StaticResource LabelTextBlockStyle}"/>
                 </StatusBarItem>
                 <StatusBarItem DockPanel.Dock="Left">
-                    <CheckBox Margin="3,0" Background="{DynamicResource Control.Static.Background}"
+                    <CheckBox Margin="3,0,0,0" Background="{DynamicResource Control.Static.Background}"
                               ToolTip="{Binding ResultOptionsButtonTooltip}"
                               Template="{DynamicResource ExpanderButtonTemplate}"
                               IsChecked="{Binding IsResultOptionsExpanded}"
@@ -260,6 +260,13 @@
                                    HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Visibility="{Binding IsSearchReplacePaused, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </Grid>
+                </StatusBarItem>
+                <StatusBarItem DockPanel.Dock="Left">
+                    <Border Background="#D0ffff00" CornerRadius="4"
+                        Visibility="{Binding ResultsViewModel.HasFailures, Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Image Source="/dnGREP;component/Images/ExclamationPoint.png" Stretch="Uniform" Width="28" Height="20"
+                           ToolTip="{Binding ResultsViewModel.FileReadErrors}"/>
+                    </Border>
                 </StatusBarItem>
                 <StatusBarItem DockPanel.Dock="Left">
                     <TextBlock Margin="3,0"
@@ -984,6 +991,7 @@
                 <Grid DockPanel.Dock="Top">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition />
                     </Grid.ColumnDefinitions>
                     <CheckBox Grid.Column="0" Margin="3,0,10,0" 
@@ -991,7 +999,11 @@
                               ToolTip="{Binding MaximizeResultsTreeButtonTooltip}"
                               Template="{DynamicResource ExpanderButtonTemplate}"
                               IsChecked="{Binding IsResultTreeMaximized}"/>
-                    <WrapPanel Grid.Column="1" HorizontalAlignment="Right" Orientation="Horizontal">
+                    <uc:NavigationButtons Grid.Column="1"
+                                          VerticalAlignment="Center"
+                                          DataContext="{Binding NavTools}"
+                                          Visibility="{Binding AbovePanelVisible, Converter={StaticResource BoolToVisibilityConverter}, FallbackValue=Collapsed}"/>
+                    <WrapPanel Grid.Column="2" HorizontalAlignment="Right" Orientation="Horizontal">
                         <CheckBox Margin="3,0" Content="{l:Loc Key='Main_SearchInResults'}"
                                   IsChecked="{Binding SearchInResultsContent}"
                                   Visibility="{Binding CompositeSearchInResultsVisible, Converter={StaticResource BoolToVisibilityConverter}}"
@@ -1055,6 +1067,11 @@
                                     <my:RadioMenuItem Header="{l:Loc Key='Main_SortMenu_Descending'}"
                                                       GroupName="S2" 
                                                       IsChecked="{Binding Path=SortDirection, Converter={StaticResource ebc}, ConverterParameter=Descending}"/>
+                                    <Separator/>
+                                    <MenuItem Header="{l:Loc Key='Main_SortMenu_NaturalSortOrder'}" 
+                                              ToolTip="{l:Loc Key='Main_SortMenu_SortDigitsInNumericalOrder'}"
+                                              IsCheckable="True"
+                                              IsChecked="{Binding NaturalSort}"/>
                                 </ContextMenu>
                             </my:SplitButton.ContextMenu>
                         </my:SplitButton>
@@ -1102,6 +1119,9 @@
                                 TabIndex="88" />
                     </WrapPanel>
                 </Grid>
+                <uc:NavigationButtons DataContext="{Binding NavTools}"
+                                      DockPanel.Dock="{Binding BorderDock}" 
+                                      Visibility="{Binding TreePanelVisible, Converter={StaticResource BoolToVisibilityConverter}}"/>
                 <uc:ResultsTree x:Name="resultsTree" DataContext="{Binding ResultsViewModel}" TabIndex="90" />
             </DockPanel>
         </DockPanel>

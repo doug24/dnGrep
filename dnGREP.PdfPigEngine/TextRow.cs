@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using UglyToad.PdfPig.Content;
 using UglyToad.PdfPig.DocumentLayoutAnalysis.WordExtractor;
 
@@ -9,7 +8,7 @@ namespace dnGREP.Engines.PdfPig
 {
     internal class TextRow : IEquatable<TextRow>
     {
-        private readonly List<Letter> letters = new();
+        private readonly List<Letter> letters = [];
 
         public TextRow(Letter letter)
         {
@@ -31,7 +30,7 @@ namespace dnGREP.Engines.PdfPig
 
         public void SortLetters()
         {
-            List<Letter> sortedLetters = new();
+            List<Letter> sortedLetters = [];
             foreach (var word in NearestNeighbourWordExtractor.Instance.GetWords(letters)
                 .OrderBy(w => w.Letters[0].Location.X))
             {

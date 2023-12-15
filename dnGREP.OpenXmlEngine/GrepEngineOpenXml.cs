@@ -17,9 +17,12 @@ namespace dnGREP.Engines.OpenXml
     {
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
 
-        public IList<string> DefaultFileExtensions
+        public List<string> DefaultFileExtensions => ["docx", "docm", "xls", "xlsx", "xlsm", "pptx", "pptm"];
+
+        public override bool Initialize(GrepEngineInitParams param, FileFilter filter)
         {
-            get { return new string[] { "docx", "docm", "xls", "xlsx", "xlsm", "pptx", "pptm" }; }
+            WordReader.Initialize();
+            return base.Initialize(param, filter);
         }
 
         public bool IsSearchOnly => true;
@@ -62,7 +65,7 @@ namespace dnGREP.Engines.OpenXml
             GrepSearchOption searchOptions, SearchDelegates.DoSearch searchMethod,
             PauseCancelToken pauseCancelToken)
         {
-            List<GrepSearchResult> searchResults = new();
+            List<GrepSearchResult> searchResults = [];
 
             string ext = Path.GetExtension(file);
 
@@ -118,7 +121,7 @@ namespace dnGREP.Engines.OpenXml
             }
             catch (Exception ex)
             {
-                logger.Error(ex, string.Format("Failed to search inside Excel file [{0}]", file));
+                logger.Error(ex, string.Format("Failed to search inside Excel file '{0}'", file));
                 searchResults.Add(new GrepSearchResult(file, searchPattern, ex.Message, false));
             }
         }

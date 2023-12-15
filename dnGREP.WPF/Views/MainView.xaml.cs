@@ -1,5 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Globalization;
+using System.Linq;
 using System.Text.RegularExpressions;
 using System.Windows;
 using System.Windows.Controls;
@@ -186,6 +188,11 @@ namespace dnGREP.WPF
             {
                 wm.Content = Localization.Properties.Resources.Main_SelectADate;
             }
+
+            // use CurrentCulture here to get the user's region settings from Windows
+            // not the language selection in the dnGrep Options (which doesn't cover 
+            // country differences)
+            dp.Language = XmlLanguage.GetLanguage(CultureInfo.CurrentCulture.IetfLanguageTag);
         }
 
         private void SetActivePreviewDockSite()
@@ -319,12 +326,14 @@ namespace dnGREP.WPF
             if (WindowState == WindowState.Maximized)
                 LayoutProperties.MainWindowState = WindowState.Maximized;
 
-            previewControl.SaveSettings();
-            viewModel.SaveSettings();
             if (!viewModel.Closing())
             {
                 e.Cancel = true;
             }
+            // save settings after call to viewModel.Closing to
+            // get the changes to the Bookmarks window closing
+            previewControl.SaveSettings();
+            viewModel.SaveSettings();
         }
 
         private void ViewModel_PreviewShow(object? sender, EventArgs e)
@@ -464,29 +473,110 @@ namespace dnGREP.WPF
         {
             if (e.Key == Key.F3 && Keyboard.Modifiers == ModifierKeys.None)
             {
-                resultsTree.SetFocus();
-                resultsTree.Next();
+                NextMatch();
                 e.Handled = true;
             }
             else if (e.Key == Key.F3 && Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
             {
-                resultsTree.SetFocus();
-                resultsTree.NextFile();
+                NextFile();
                 e.Handled = true;
             }
             else if (e.Key == Key.F4 && Keyboard.Modifiers == ModifierKeys.None)
             {
-                resultsTree.SetFocus();
-                resultsTree.Previous();
+                PreviousMatch();
                 e.Handled = true;
             }
             else if (e.Key == Key.F4 && Keyboard.Modifiers.HasFlag(ModifierKeys.Shift))
             {
-                resultsTree.SetFocus();
-                resultsTree.PreviousFile();
+                PreviousFile();
                 e.Handled = true;
             }
         }
+
+        internal void NextMatch()
+        {
+            resultsTree.SetFocus();
+            resultsTree.Next();
+        }
+
+        internal void NextFile()
+        {
+            resultsTree.SetFocus();
+            resultsTree.NextFile();
+        }
+
+        internal void PreviousMatch()
+        {
+            resultsTree.SetFocus();
+            resultsTree.Previous();
+        }
+
+        internal void PreviousFile()
+        {
+            resultsTree.SetFocus();
+            resultsTree.PreviousFile();
+        }
+
+        internal void ScrollToCurrent()
+        {
+            resultsTree.SetFocus();
+
+            // move the treeViewItem to the middle of the treeView
+            if (resultsTree.treeView.StartTreeViewItem is TreeViewItem treeViewItem &&
+                resultsTree.treeView.Template.FindName("_tv_scrollviewer_", resultsTree.treeView) is ScrollViewer scrollViewer)
+            {
+                var currentTop = treeViewItem.TranslatePoint(new Point(), resultsTree.treeView).Y;
+                var itemHeight = treeViewItem.ActualHeight;
+                var viewHeight = resultsTree.treeView.ActualHeight;
+                var desiredTop = (viewHeight - itemHeight) / 2.0;
+                var desiredDelta = currentTop - desiredTop;
+
+                // calculations relative to the scrollViewer within the treeView
+                var currentOffset = scrollViewer.VerticalOffset;
+                var desiredOffset = currentOffset + desiredDelta;
+                scrollViewer.ScrollToVerticalOffset(desiredOffset);
+            }
+            else
+            {
+                resultsTree.treeView.StartTreeViewItem?.BringIntoView();
+            }
+        }
+
+        internal void CollapseAll()
+        {
+            resultsTree.SetFocus();
+
+            foreach (FormattedGrepResult result in resultsTree.treeView.Items)
+            {
+                result.CollapseTreeNode();
+            }
+        }
+
+        internal bool HasSearchResults
+        {
+            get
+            {
+                if (resultsTree.treeView.DataContext is GrepSearchResultsViewModel vm)
+                {
+                    return vm.SearchResults.Count > 0;
+                }
+                return false;
+            }
+        }
+
+        internal bool HasExpandedNode
+        {
+            get
+            {
+                if (resultsTree.treeView.DataContext is GrepSearchResultsViewModel vm)
+                {
+                    return vm.SearchResults.Any(n => n.IsExpanded);
+                }
+                return false;
+            }
+        }
+
+        internal bool HasStartItem => resultsTree.treeView.HasStartItem;
 
         private DateTime timeOfLastMessage = DateTime.Now;
 
@@ -529,7 +619,7 @@ namespace dnGREP.WPF
                 WindowState = WindowState.Normal;
             }
 
-            // According to some sources these steps gurantee that an app will be brought to foreground.
+            // According to some sources these steps guarantee that an app will be brought to foreground.
             Activate();
             Topmost = true;
             Topmost = false;
