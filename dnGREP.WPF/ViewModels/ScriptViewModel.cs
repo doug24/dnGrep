@@ -370,7 +370,9 @@ namespace dnGREP.WPF
             if (firstFileSave)
             {
                 firstFileSave = false;
-                string dataFolder = Path.Combine(Utils.GetDataFolderPath(), ScriptManager.ScriptFolder);
+                string cloudFolder = GrepSettings.Instance.Get<string>(GrepSettings.Key.CloudSettingsDirectory);
+                string dataFolder = !string.IsNullOrEmpty(cloudFolder) ? cloudFolder : Utils.GetDataFolderPath();
+                dataFolder = Path.Combine(dataFolder, ScriptManager.ScriptFolder);
                 if (!Directory.Exists(dataFolder))
                 {
                     Directory.CreateDirectory(dataFolder);

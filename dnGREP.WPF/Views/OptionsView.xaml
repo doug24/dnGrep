@@ -676,6 +676,46 @@
                     </StackPanel>
                 </GroupBox>
 
+                <GroupBox Header="Settings on cloud">
+                    <Grid Margin="0,6,0,0">
+                        <Grid.RowDefinitions>
+                            <RowDefinition />
+                            <RowDefinition />
+                            <RowDefinition />
+                        </Grid.RowDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="500"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        
+                        <RadioButton Grid.Row="0" Grid.Column="0" Margin="0,3"
+                                     GroupName="CloudSettingsOption"
+                                     Content="Save settings in local directory only"
+                                     IsChecked="{Binding CloudSettingsOption, Converter={StaticResource ebc}, ConverterParameter=LocalOnly}"/>
+                        <RadioButton Grid.Row="1" Grid.Column="0" Margin="0,3"
+                                     GroupName="CloudSettingsOption"
+                                     Content="Cloud settings path:"
+                                     IsChecked="{Binding CloudSettingsOption, Converter={StaticResource ebc}, ConverterParameter=InCloud}"/>
+
+                        <TextBox Grid.Row="2" Grid.Column="0" Margin="20,3,3,3"
+                                 Text="{Binding Path=CloudSettingsDirectory, UpdateSourceTrigger=PropertyChanged}"
+                                 IsReadOnly="{Binding CloudSettingsOption, Converter={StaticResource ebc}, ConverterParameter=LocalOnly}"/>
+
+                        <Button Grid.Row="2" Grid.Column="1" Margin="3"
+                                Content="{l:Loc Key='Options_BrowseFileLocation'}"
+                                Command="{Binding Path=BrowseCloudSettingsDirectory}"
+                                IsEnabled="{Binding CloudSettingsOption, Converter={StaticResource ebc}, ConverterParameter=InCloud}">
+                            <Button.Width>
+                                <MultiBinding Converter="{StaticResource TextBoxWidthConverter}" ConverterParameter="32" FallbackValue="32">
+                                    <Binding RelativeSource="{RelativeSource Mode=Self}"/>
+                                    <Binding Path="ApplicationFontFamily"/>
+                                    <Binding Path="DialogFontSize"/>
+                                </MultiBinding>
+                            </Button.Width>
+                        </Button>
+                    </Grid>
+                </GroupBox>
+
                 <GroupBox Header="{l:Loc Key='Options_Layout'}">
                     <StackPanel>
                         <StackPanel Margin="0,6,0,0">

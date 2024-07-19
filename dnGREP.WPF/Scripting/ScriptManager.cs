@@ -61,10 +61,13 @@ namespace dnGREP.WPF
 
         public void ResetVariables()
         {
+            string cloudFolder = GrepSettings.Instance.Get<string>(GrepSettings.Key.CloudSettingsDirectory);
+            string dataFolder = !string.IsNullOrEmpty(cloudFolder) ? cloudFolder : Utils.GetDataFolderPath();
+
             ScriptEnvironmentVariables.Clear();
             ScriptEnvironmentVariables.Add("dnGrep_logDir", App.LogDir);
-            ScriptEnvironmentVariables.Add("dnGrep_dataDir", Utils.GetDataFolderPath());
-            ScriptEnvironmentVariables.Add("dnGrep_scriptDir", Path.Combine(Utils.GetDataFolderPath(), ScriptFolder));
+            ScriptEnvironmentVariables.Add("dnGrep_dataDir", dataFolder);
+            ScriptEnvironmentVariables.Add("dnGrep_scriptDir", Path.Combine(dataFolder, ScriptFolder));
         }
 
         [GeneratedRegex("%(\\w+?)%")]
@@ -100,6 +103,25 @@ namespace dnGREP.WPF
             ResetVariables();
         }
 
+        public void SyncScriptFolderToCloud(string baseCloudPath)
+        {
+            string dataFolder = Path.Combine(Utils.GetDataFolderPath(), ScriptFolder);
+            string cloudFolder = Path.Combine(baseCloudPath, ScriptFolder);
+
+            //bool reverseSync = true;
+            if (!Directory.Exists(cloudFolder))
+            {
+                Directory.CreateDirectory(cloudFolder);
+                //reverseSync = false;
+            }
+
+            Utils.CopyFiles(dataFolder, cloudFolder, "*" + ScriptExt, true);
+            //if (reverseSync)
+            //{
+            //    Utils.CopyFiles(cloudFolder, dataFolder, "*" + ScriptExt, true);
+            //}
+        }
+
         private readonly Dictionary<string, string> _scripts = [];
 
         public ICollection<string> ScriptKeys { get { return _scripts.Keys; } }
@@ -118,7 +140,11 @@ namespace dnGREP.WPF
         internal void LoadScripts()
         {
             _scripts.Clear();
-            string dataFolder = Path.Combine(Utils.GetDataFolderPath(), ScriptFolder);
+
+            string cloudFolder = GrepSettings.Instance.Get<string>(GrepSettings.Key.CloudSettingsDirectory);
+            string dataFolder = !string.IsNullOrEmpty(cloudFolder) ? cloudFolder : Utils.GetDataFolderPath();
+            dataFolder = Path.Combine(dataFolder, ScriptFolder);
+
             if (!Directory.Exists(dataFolder))
             {
                 Directory.CreateDirectory(dataFolder);

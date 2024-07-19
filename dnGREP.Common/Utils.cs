@@ -70,6 +70,50 @@ namespace dnGREP.Common
         }
 
         /// <summary>
+        /// Copies the folder recursively. Uses includePattern to avoid unnecessary objects
+        /// </summary>
+        /// <param name="sourceDirectory"></param>
+        /// <param name="destinationDirectory"></param>
+        /// <param name="includePattern">Regex pattern that matches file or folder to be included. If null or empty, the parameter is ignored</param>
+        /// <param name="preserveNewest">true to keep the newest file, or false to overwrite the destination always</param>
+        public static void CopyFiles(string sourceDirectory, string destinationDirectory, string? includePattern, bool preserveNewest)
+        {
+            if (!Directory.Exists(destinationDirectory)) Directory.CreateDirectory(destinationDirectory);
+
+            var files = Directory.GetFileSystemEntries(sourceDirectory);
+
+            foreach (string element in files)
+            {
+                if (!string.IsNullOrEmpty(includePattern) && File.Exists(element) && !Regex.IsMatch(element, includePattern))
+                    continue;
+
+                // Sub directories
+                if (Directory.Exists(element))
+                {
+                    CopyFiles(element, Path.Combine(destinationDirectory, Path.GetFileName(element)), includePattern, preserveNewest);
+                }
+                // Files in directory
+                else
+                {
+                    string destinationFilePath = Path.Combine(destinationDirectory, Path.GetFileName(element));
+                    if (preserveNewest && File.Exists(destinationFilePath))
+                    {
+                        FileInfo sourceFile = new(element);
+                        FileInfo destinationFile = new(destinationFilePath);
+                        if (destinationFile.LastWriteTime < sourceFile.LastWriteTime)
+                        {
+                            CopyFile(element, destinationFilePath, true);
+                        }
+                    }
+                    else
+                    {
+                        CopyFile(element, destinationFilePath, true);
+                    }
+                }
+            }
+        }
+
+        /// <summary>
         /// Copies files with directory structure based on search results. If destination folder does not exist, creates it.
         /// </summary>
         /// <param name="source"></param>

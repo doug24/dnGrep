@@ -21,138 +21,152 @@ namespace dnGREP.Common
     {
         public static class Key
         {
-            [DefaultValue("")]
+            [DefaultValue(""), CloudSetting]
             public const string SearchFolder = "SearchFolder";
-            [DefaultValue("")]
+            [DefaultValue(""), CloudSetting]
             public const string SearchFor = "SearchFor";
-            [DefaultValue("")]
+            [DefaultValue(""), CloudSetting]
             public const string ReplaceWith = "ReplaceWith";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string IncludeHidden = "IncludeHidden";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string IncludeBinary = "IncludeBinary";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string IncludeArchive = "IncludeArchive";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string IncludeSubfolder = "IncludeSubfolder";
-            [DefaultValue(-1)]
+            [DefaultValue(-1), CloudSetting]
             public const string MaxSubfolderDepth = "MaxSubfolderDepth";
-            [DefaultValue(SearchType.Regex)]
+            [DefaultValue(SearchType.Regex), CloudSetting]
             public const string TypeOfSearch = "TypeOfSearch";
-            [DefaultValue(FileSearchType.Asterisk)]
+            [DefaultValue(FileSearchType.Asterisk), CloudSetting]
             public const string TypeOfFileSearch = "TypeOfFileSearch";
-            [DefaultValue(-1)]
+            [DefaultValue(-1), CloudSetting]
             public const string CodePage = "CodePage";
-            [DefaultValue("*.*")]
+            [DefaultValue("*.*"), CloudSetting]
             public const string FilePattern = "FilePattern";
-            [DefaultValue("")]
+            [DefaultValue(""), CloudSetting]
             public const string FilePatternIgnore = "FilePatternIgnore";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string UseGitignore = "UseGitignore";
-            [DefaultValue(FileSizeFilter.No)]
+            [DefaultValue(FileSizeFilter.No), CloudSetting]
             public const string UseFileSizeFilter = "UseFileSizeFilter";
+            [DefaultValue(false), CloudSetting]
             public const string CaseSensitive = "CaseSensitive";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string PreviewFileContent = "PreviewFileContent";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string Global = "Global";
+            [DefaultValue(false), CloudSetting]
             public const string Multiline = "Multiline";
+            [DefaultValue(false), CloudSetting]
             public const string Singleline = "Singleline";
+            [DefaultValue(false), CloudSetting]
             public const string WholeWord = "WholeWord";
+            [DefaultValue(false), CloudSetting]
             public const string BooleanOperators = "BooleanOperators";
+            [DefaultValue(0), CloudSetting]
             public const string SizeFrom = "SizeFrom";
-            [DefaultValue(100)]
+            [DefaultValue(100), CloudSetting]
             public const string SizeTo = "SizeTo";
-            [DefaultValue(0.5)]
+            [DefaultValue(0.5), CloudSetting]
             public const string FuzzyMatchThreshold = "FuzzyMatchThreshold";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string ShowLinesInContext = "ShowLinesInContext";
-            [DefaultValue(2)]
+            [DefaultValue(2), CloudSetting]
             public const string ContextLinesBefore = "ContextLinesBefore";
-            [DefaultValue(3)]
+            [DefaultValue(3), CloudSetting]
             public const string ContextLinesAfter = "ContextLinesAfter";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string EnableUpdateChecking = "EnableUpdateChecking";
-            [DefaultValue(10)]
+            [DefaultValue(10), CloudSetting]
             public const string UpdateCheckInterval = "UpdateCheckInterval";
             public const string LastCheckedVersion = "LastCheckedVersion";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string ShowFilePathInResults = "ShowFilePathInResults";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string ShowFileErrorsInResults = "ShowFileErrorsInResults";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string AllowSearchingForFileNamePattern = "AllowSearchingForFileNamePattern";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string DetectEncodingForFileNamePattern = "DetectEncodingForFileNamePattern";
             [DefaultValue("")]
             public const string CompareApplication = "CompareApplication";
             [DefaultValue("")]
             public const string CompareApplicationArgs = "CompareApplicationArgs";
+            [DefaultValue(value: false), CloudSetting]
             public const string ExpandResults = "ExpandResults";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string ShowVerboseMatchCount = "ShowVerboseMatchCount";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string IsFiltersExpanded = "IsFiltersExpanded";
+            [CloudSetting]
             public const string FastSearchBookmarks = "FastSearchBookmarks";
+            [CloudSetting]
             public const string FastReplaceBookmarks = "FastReplaceBookmarks";
+            [CloudSetting]
             public const string FastFileMatchBookmarks = "FastFileMatchBookmarks";
+            [CloudSetting]
             public const string FastFileNotMatchBookmarks = "FastFileNotMatchBookmarks";
+            [CloudSetting]
             public const string FastPathBookmarks = "FastPathBookmarks";
             [DefaultValue(12)]
             public const string PreviewWindowFont = "PreviewWindowFont";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string PreviewWindowWrap = "PreviewWindowWrap";
-            [DefaultValue(20)]
+            [DefaultValue(20), CloudSetting]
             public const string MaxPathBookmarks = "MaxPathBookmarks";
-            [DefaultValue(20)]
+            [DefaultValue(20), CloudSetting]
             public const string MaxSearchBookmarks = "MaxSearchBookmarks";
-            [DefaultValue(10)]
+            [DefaultValue(10), CloudSetting]
             public const string MaxExtensionBookmarks = "MaxExtensionBookmarks";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string OptionsOnMainPanel = "OptionsOnMainPanel";
-            [DefaultValue(FileDateFilter.None)]
+            [DefaultValue(FileDateFilter.None), CloudSetting]
             public const string UseFileDateFilter = "UseFileDateFilter";
-            [DefaultValue(FileTimeRange.None)]
+            [DefaultValue(FileTimeRange.None), CloudSetting]
             public const string TypeOfTimeRangeFilter = "TypeOfTimeRangeFilter";
-            [DefaultValue(FileTimeRange.Hours)]
+            [DefaultValue(FileTimeRange.Hours), CloudSetting]
             public const string PastTimeRangeFilter = "PastTimeRangeFilter";
+            [CloudSetting]
             public const string StartDate = "StartDate";
+            [CloudSetting]
             public const string EndDate = "EndDate";
-            [DefaultValue(0)]
+            [DefaultValue(0), CloudSetting]
             public const string TimeRangeFrom = "TimeRangeFrom"; //read/write with the old key
-            [DefaultValue(8)]
+            [DefaultValue(8), CloudSetting]
             public const string TimeRangeTo = "TimeRangeTo"; //read/write with the old key
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SearchParallel = "SearchParallel";
-            [DefaultValue(4.0)]
+            [DefaultValue(4.0), CloudSetting]
             public const string MatchTimeout = "MatchTimeout";
             [DefaultValue(14)]
             public const string ReplaceWindowFontSize = "ReplaceWindowFontSize";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string ReplaceWindowWrap = "ReplaceWindowWrap";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string FollowWindowsTheme = "FollowWindowsTheme";
-            [DefaultValue("Light")]
+            [DefaultValue("Light"), CloudSetting]
             public const string CurrentTheme = "CurrentTheme";
-            [DefaultValue("en")]
+            [DefaultValue("en"), CloudSetting]
             public const string CurrentCulture = "CurrentCulture";
-            [DefaultValue(SortType.FileNameDepthFirst)]
+            [DefaultValue(SortType.FileNameDepthFirst), CloudSetting]
             public const string TypeOfSort = "TypeOfSort";
-            [DefaultValue(ListSortDirection.Ascending)]
+            [DefaultValue(ListSortDirection.Ascending), CloudSetting]
             public const string SortDirection = "SortDirection";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string NaturalSort = "NaturalSort";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string ShowFileInfoTooltips = "ShowFileInfoTooltips";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string HighlightMatches = "HighlightMatches";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string ShowResultOptions = "ShowResultOptions";
             [DefaultValue(1.0)]
             public const string ResultsTreeScale = "ResultsTreeScale";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string ResultsTreeWrap = "ResultsTreeWrap";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string HighlightCaptureGroups = "HighlightCaptureGroups";
             [DefaultValue(true)]
             public const string UseDefaultFont = "UseDefaultFont";
@@ -164,11 +178,11 @@ namespace dnGREP.Common
             [DefaultValue("")]
             public const string ResultsFontFamily = "ResultsFontFamily";
             public const string ResultsFontSize = "ResultsFontSize";
-            [DefaultValue("-layout -enc UTF-8 -bom")]
+            [DefaultValue("-layout -enc UTF-8 -bom"), CloudSetting]
             public const string PdfToTextOptions = "PdfToTextOptions";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string PdfJoinLines = "PdfJoinLines";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string FollowSymlinks = "FollowSymlinks";
             public const string MainWindowState = "MainWindowState";
             public const string MainWindowBounds = "MainWindowBounds";
@@ -180,184 +194,188 @@ namespace dnGREP.Common
             public const string PreviewDockSide = "PreviewDockSide";
             public const string PreviewDockedWidth = "PreviewDockedWidth";
             public const string PreviewDockedHeight = "PreviewDockedHeight";
+            [CloudSetting]
             public const string PreviewHidden = "PreviewHidden";
-            [DefaultValue(4000L)] // in KB
+            [DefaultValue(4000L), CloudSetting] // in KB
             public const string PreviewLargeFileLimit = "PreviewLargeFileLimit";
             [DefaultValue(true)]
             public const string PreviewAutoPosition = "PreviewAutoPosition";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string CaptureGroupSearch = "CaptureGroupSearch";
-            [DefaultValue(16)]
+            [DefaultValue(16), CloudSetting]
             public const string HexResultByteLength = "HexResultByteLength";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string ShowFullReplaceDialog = "ShowFullReplaceDialog";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string DeleteToRecycleBin = "DeleteToRecycleBin";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SkipRemoteCloudStorageFiles = "SkipRemoteCloudStorageFiles";
 
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string PersonalizationOn = "PersonalizationOn";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string BookmarksVisible = "BookmarksVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string TestExpressionVisible = "TestExpressionVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string ReplaceVisible = "ReplaceVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SortVisible = "SortVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string MoreVisible = "MoreVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SearchInArchivesVisible = "SearchInArchivesVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SizeFilterVisible = "SizeFilterVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SubfoldersFilterVisible = "SubfoldersFilterVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string HiddenFilterVisible = "HiddenFilterVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string BinaryFilterVisible = "BinaryFilterVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SymbolicLinkFilterVisible = "SymbolicLinkFilterVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string DateFilterVisible = "DateFilterVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SearchParallelVisible = "SearchParallelVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string UseGitIgnoreVisible = "UseGitIgnoreVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SkipCloudStorageVisible = "SkipCloudStorageVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string EncodingVisible = "EncodingVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SearchTypeRegexVisible = "SearchTypeRegexVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SearchTypeXPathVisible = "SearchTypeXPathVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SearchTypeTextVisible = "SearchTypeTextVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SearchTypePhoneticVisible = "SearchTypePhoneticVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SearchTypeByteVisible = "SearchTypeByteVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string BooleanOperatorsVisible = "BooleanOperatorsVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string CaptureGroupSearchVisible = "CaptureGroupSearchVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SearchInResultsVisible = "SearchInResultsVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string PreviewFileVisible = "PreviewFileVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string HighlightMatchesVisible = "HighlightMatchesVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string HighlightGroupsVisible = "HighlightGroupsVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string ShowContextLinesVisible = "ShowContextLinesVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string ZoomResultsTreeVisible = "ZoomResultsTreeVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string WrapTextResultsTreeVisible = "WrapTextResultsTreeVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string PreviewZoomWndVisible = "PreviewZoomWndVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string WrapTextPreviewWndVisible = "WrapTextPreviewWndVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string SyntaxPreviewWndVisible = "SyntaxPreviewWndVisible";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string NavigationButtonsVisible = "NavigationButtonsVisible";
-            [DefaultValue(ToolSize.Small)]
+            [DefaultValue(ToolSize.Small), CloudSetting]
             public const string NavToolsSize = "NavToolsSize";
-            [DefaultValue(NavigationToolsPosition.LeftTop)]
+            [DefaultValue(NavigationToolsPosition.LeftTop), CloudSetting]
             public const string NavToolsPosition = "NavToolsPosition";
-            [DefaultValue(Common.ReportMode.FullLine)]
+            [DefaultValue(Common.ReportMode.FullLine), CloudSetting]
             public const string ReportMode = "ReportMode";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string IncludeFileInformation = "IncludeFileInformation";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string TrimWhitespace = "TrimWhitespace";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string FilterUniqueValues = "FilterUniqueValues";
-            [DefaultValue(Common.UniqueScope.PerFile)]
+            [DefaultValue(Common.UniqueScope.PerFile), CloudSetting]
             public const string UniqueScope = "UniqueScope";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string OutputOnSeparateLines = "OutputOnSeparateLines";
-            [DefaultValue(",")]
+            [DefaultValue(","), CloudSetting]
             public const string ListItemSeparator = "ListItemSeparator";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string RestoreLastModifiedDate = "RestoreLastModifiedDate";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string MaximizeResultsTreeOnSearch = "MaximizeResultsTreeOnSearch";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string SortAutomaticallyOnSearch = "SortAutomaticallyOnSearch";
-            [DefaultValue(PdfNumberType.PageNumber)]
+            [DefaultValue(PdfNumberType.PageNumber), CloudSetting]
             public const string PdfNumberStyle = "PdfNumberStyle";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string PinBookmarkWindow = "PinBookmarkWindow";
-            [DefaultValue(OverwriteFile.Prompt)]
+            [DefaultValue(OverwriteFile.Prompt), CloudSetting]
             public const string OverwriteFilesOnCopy = "OverwriteFilesOnCopy";
-            [DefaultValue(OverwriteFile.Prompt)]
+            [DefaultValue(OverwriteFile.Prompt), CloudSetting]
             public const string OverwriteFilesOnMove = "OverwriteFilesOnMove";
-            [DefaultValue(-1)]
+            [DefaultValue(-1), CloudSetting]
             public const string MaxDegreeOfParallelism = "MaxDegreeOfParallelism";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string PreserveFolderLayoutOnCopy = "PreserveFolderLayoutOnCopy";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string PreserveFolderLayoutOnMove = "PreserveFolderLayoutOnMove";
-            [DefaultValue("")]
+            [DefaultValue(""), CloudSetting]
             public const string IgnoreFilter = "IgnoreFilter";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string IsSingletonInstance = "IsSingletonInstance";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string PassSearchFolderToSingleton = "PassSearchFolderToSingleton";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string ConfirmExitScript = "ConfirmExitScript";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string ConfirmExitSearch = "ConfirmExitSearch";
-            [DefaultValue(10.0)]
+            [DefaultValue(10.0), CloudSetting]
             public const string ConfirmExitSearchDuration = "ConfirmExitSearchDuration";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string WordExtractFootnotes = "WordExtractFootnotes";
-            [DefaultValue(FootnoteRefType.None)]
+            [DefaultValue(FootnoteRefType.None), CloudSetting]
             public const string WordFootnoteReference = "WordFootnoteReference";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string WordExtractComments = "WordExtractComments";
-            [DefaultValue(CommentRefType.None)]
+            [DefaultValue(CommentRefType.None), CloudSetting]
             public const string WordCommentReference = "WordCommentReference";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string WordExtractHeaders = "WordExtractHeaders";
-            [DefaultValue(false)]
+            [DefaultValue(false), CloudSetting]
             public const string WordExtractFooters = "WordExtractFooters";
-            [DefaultValue(HeaderFooterPosition.SectionStart)]
+            [DefaultValue(HeaderFooterPosition.SectionStart), CloudSetting]
             public const string WordHeaderFooterPosition = "WordHeaderFooterPosition";
-            [DefaultValue("")]
+            [DefaultValue(""), CloudSetting]
             public const string BookmarkColumnOrder = "BookmarkColumnOrder";
-            [DefaultValue("")]
+            [DefaultValue(""), CloudSetting]
             public const string BookmarkColumnWidths = "BookmarkColumnWidths";
             public const string BookmarkWindowBounds = "BookmarkWindowBounds";
             public const string BookmarkWindowState = "BookmarkWindowState";
             public const string CustomEditors = "CustomEditors";
+            [CloudSetting]
             public const string Plugins = "Plugins";
-            [DefaultValue("")]
+            [DefaultValue(""), CloudSetting]
             public const string ArchiveExtensions = "ArchiveExtensions";
-            [DefaultValue("")]
+            [DefaultValue(""), CloudSetting]
             public const string ArchiveCustomExtensions = "ArchiveCustomExtensions";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string StickyScroll = "StickyScroll";
-            [DefaultValue(1)]
+            [DefaultValue(1), CloudSetting]
             public const string SearchAutoStopCount = "SearchAutoStopCount";
-            [DefaultValue(5)]
+            [DefaultValue(5), CloudSetting]
             public const string SearchAutoPauseCount = "SearchAutoPauseCount";
-            [DefaultValue(true)]
+            [DefaultValue(true), CloudSetting]
             public const string AutoCompleteEnabled = "AutoCompleteEnabled";
-            [DefaultValue(FocusElement.ResultsTree)]
+            [DefaultValue(FocusElement.ResultsTree), CloudSetting]
             public const string SetFocusElement = "SetFocusElement";
-            [DefaultValue(ArchiveCopyMoveDelete.CopyFile)]
+            [DefaultValue(ArchiveCopyMoveDelete.CopyFile), CloudSetting]
             public const string ArchiveCopy = "ArchiveCopy";
-            [DefaultValue(ArchiveCopyMoveDelete.CopyFile)]
+            [DefaultValue(ArchiveCopyMoveDelete.CopyFile), CloudSetting]
             public const string ArchiveMove = "ArchiveMove";
-            [DefaultValue(ArchiveCopyMoveDelete.DoNothing)]
+            [DefaultValue(ArchiveCopyMoveDelete.DoNothing), CloudSetting]
             public const string ArchiveDelete = "ArchiveDelete";
+            [DefaultValue("")]
+            public const string CloudSettingsDirectory = "CloudSettingsDirectory";
         }
 
         public static class ObsoleteKey
@@ -403,7 +421,17 @@ namespace dnGREP.Common
         /// </summary>
         public void Load()
         {
-            Load(Path.Combine(Utils.GetDataFolderPath(), storageFileName));
+            Load(Path.Combine(Utils.GetDataFolderPath(), storageFileName), true);
+
+            if (Get<string>(Key.CloudSettingsDirectory) is string cloudPath &&
+                Directory.Exists(cloudPath))
+            {
+                string path = Path.Combine(cloudPath, storageFileName);
+                if (File.Exists(path))
+                {
+                    Load(path, false);
+                }
+            }
         }
 
         public void Clear()
@@ -422,7 +450,7 @@ namespace dnGREP.Common
         /// Load settings from location specified
         /// </summary>
         /// <param name="path">Path to settings file</param>
-        public void Load(string path)
+        public void Load(string path, bool clearOnLoad = true)
         {
             // check file version
             Version = GetFileVersion(path);
@@ -432,19 +460,19 @@ namespace dnGREP.Common
             }
             else if (Version == 1)
             {
-                LoadV1(path);
+                LoadV1(path, clearOnLoad);
                 ConvertToV3();
                 ConvertToV3a();
             }
             else if (Version == 2)
             {
-                LoadV2(path);
+                LoadV2(path, clearOnLoad);
                 ConvertToV3();
                 ConvertToV3a();
             }
             else if (Version == 3)
             {
-                LoadV3(path);
+                LoadV3(path, clearOnLoad);
                 ConvertToV3a();
             }
 
@@ -471,7 +499,7 @@ namespace dnGREP.Common
             return 0;// new file
         }
 
-        private void LoadV1(string path)
+        private void LoadV1(string path, bool clearOnLoad)
         {
             try
             {
@@ -481,7 +509,11 @@ namespace dnGREP.Common
                     if (stream == null)
                         return;
 
-                    settings.Clear();
+                    if (clearOnLoad)
+                    {
+                        settings.Clear();
+                    }
+
                     XmlSerializer serializer = new(typeof(SerializableDictionary));
                     if (serializer.Deserialize(stream) is SerializableDictionary appData)
                     {
@@ -496,7 +528,7 @@ namespace dnGREP.Common
             }
         }
 
-        private void LoadV2(string path)
+        private void LoadV2(string path, bool clearOnLoad)
         {
             try
             {
@@ -508,7 +540,10 @@ namespace dnGREP.Common
                         XDocument doc = XDocument.Load(stream, LoadOptions.PreserveWhitespace);
                         if (doc != null && doc.Root != null && doc.Root.Name.LocalName.Equals("dictionary", StringComparison.Ordinal))
                         {
-                            settings.Clear();
+                            if (clearOnLoad)
+                            {
+                                settings.Clear();
+                            }
 
                             XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
 
@@ -546,7 +581,7 @@ namespace dnGREP.Common
             }
         }
 
-        private void LoadV3(string path)
+        private void LoadV3(string path, bool clearOnLoad)
         {
             try
             {
@@ -558,7 +593,10 @@ namespace dnGREP.Common
                         XDocument doc = XDocument.Load(stream, LoadOptions.PreserveWhitespace);
                         if (doc != null && doc.Root != null && doc.Root.Name.LocalName.Equals("dictionary", StringComparison.Ordinal))
                         {
-                            settings.Clear();
+                            if (clearOnLoad)
+                            {
+                                settings.Clear();
+                            }
 
                             XNamespace xsi = "http://www.w3.org/2001/XMLSchema-instance";
 
@@ -800,7 +838,13 @@ namespace dnGREP.Common
                     Directory.CreateDirectory(dirName);
                 }
 
-                SaveV3(path);
+                SaveV3(path, false);
+
+                if (Get<string>(Key.CloudSettingsDirectory) is string cloudPath &&
+                    Directory.Exists(cloudPath))
+                {
+                    SaveV3(Path.Combine(cloudPath, storageFileName), true);
+                }
             }
             catch (Exception ex)
             {
@@ -813,7 +857,7 @@ namespace dnGREP.Common
             }
         }
 
-        private void SaveV3(string path)
+        private void SaveV3(string path, bool cloudSettingsOnly)
         {
             // Create temp file in case save crashes
             using (FileStream stream = File.OpenWrite(path + "~"))
@@ -832,6 +876,11 @@ namespace dnGREP.Common
                 doc.Root?.SetAttributeValue(XNamespace.Xmlns + "xsi", xsi);
                 foreach (string key in settings.Keys)
                 {
+                    if (cloudSettingsOnly && !IsCloudSetting(key))
+                    {
+                        continue;
+                    }
+
                     string? value = null;
                     try
                     {
@@ -1339,10 +1388,9 @@ namespace dnGREP.Common
             FieldInfo? info = constantKeys?.Find(fi => fi.Name == key);
 
             if (info != null &&
-                info.GetCustomAttributes(typeof(DefaultValueAttribute), false) is DefaultValueAttribute[] attr &&
-                attr.Length == 1)
+                info.GetCustomAttribute(typeof(DefaultValueAttribute), false) is DefaultValueAttribute attr)
             {
-                if (attr[0].Value is T val)
+                if (attr.Value is T val)
                 {
                     return val;
                 }
@@ -1384,13 +1432,25 @@ namespace dnGREP.Common
             FieldInfo? info = constantKeys?.Find(fi => fi.Name == key);
 
             if (info != null &&
-                info.GetCustomAttributes(typeof(DefaultValueAttribute), false) is DefaultValueAttribute[] attr &&
-                attr.Length == 1)
+                info.GetCustomAttribute(typeof(DefaultValueAttribute), false) is DefaultValueAttribute attr)
             {
-                return (T?)attr[0].Value;
+                return (T?)attr.Value;
             }
 
             return default;
+        }
+
+        private bool IsCloudSetting(string key)
+        {
+            InitializeConstantKeys();
+            FieldInfo? info = constantKeys?.Find(fi => fi.Name == key);
+
+            if (info != null &&
+                info.GetCustomAttribute(typeof(CloudSettingAttribute), false) is CloudSettingAttribute attr)
+            {
+                return true;
+            }
+            return false;
         }
 
         public void ConvertExtensionsToV3(string name, List<string> defaultExtensions)

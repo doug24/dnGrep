@@ -30,6 +30,8 @@ namespace dnGREP.WPF
 
         public enum DeleteFilesDestination { Recycle, Permanent }
 
+        public enum CloudSelection { LocalOnly, InCloud }
+
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private static readonly string ellipsis = char.ConvertFromUtf32(0x2026);
 
@@ -192,6 +194,7 @@ namespace dnGREP.WPF
                 FollowWindowsTheme != Settings.Get<bool>(GrepSettings.Key.FollowWindowsTheme) ||
                 CurrentTheme != Settings.Get<string>(GrepSettings.Key.CurrentTheme) ||
                 CurrentCulture != Settings.Get<string>(GrepSettings.Key.CurrentCulture) ||
+                CloudSettingsDirectory != Settings.Get<string>(GrepSettings.Key.CloudSettingsDirectory) ||
                 UseDefaultFont != Settings.Get<bool>(GrepSettings.Key.UseDefaultFont) ||
                 EditApplicationFontFamily != Settings.Get<string>(GrepSettings.Key.ApplicationFontFamily) ||
                 EditMainFormFontSize != Settings.Get<double>(GrepSettings.Key.MainFormFontSize) ||
@@ -603,6 +606,18 @@ namespace dnGREP.WPF
         private string archiveCustomExtensions = string.Empty;
 
         [ObservableProperty]
+        private string cloudSettingsDirectory = string.Empty;
+
+        [ObservableProperty]
+        private CloudSelection cloudSettingsOption = CloudSelection.LocalOnly;
+
+        partial void OnCloudSettingsOptionChanged(CloudSelection value)
+        {
+            if (value == CloudSelection.LocalOnly)
+                CloudSettingsDirectory = string.Empty;
+        }
+
+        [ObservableProperty]
         private bool useDefaultFont = true;
         partial void OnUseDefaultFontChanged(bool value)
         {
@@ -679,6 +694,12 @@ namespace dnGREP.WPF
             param => BrowseToCompareApp());
 
         /// <summary>
+        /// Returns a command that opens file browse dialog.
+        /// </summary>
+        public ICommand BrowseCloudSettingsDirectory => new RelayCommand(
+            param => BrowseToCloudSettings());
+
+        /// <summary>
         /// Returns a command that clears old searches.
         /// </summary>
         public static ICommand ClearSearchesCommand => new RelayCommand(
@@ -748,6 +769,20 @@ namespace dnGREP.WPF
             if (result.HasValue && result.Value)
             {
                 CompareApplicationPath = dlg.FileName;
+            }
+        }
+
+        public void BrowseToCloudSettings()
+        {
+            var folderDialog = new OpenFolderDialog
+            {
+                Title = "Select Folder",
+                InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments)
+            };
+
+            if (folderDialog.ShowDialog() == true)
+            {
+                CloudSettingsDirectory = folderDialog.FolderName;
             }
         }
 
@@ -835,7 +870,8 @@ namespace dnGREP.WPF
             SearchAutoStopCount = Settings.Get<int>(GrepSettings.Key.SearchAutoStopCount);
             SearchAutoPauseCount = Settings.Get<int>(GrepSettings.Key.SearchAutoPauseCount);
             FocusElement = Settings.Get<FocusElement>(GrepSettings.Key.SetFocusElement);
-
+            CloudSettingsDirectory = Settings.Get<string>(GrepSettings.Key.CloudSettingsDirectory);
+            CloudSettingsOption = string.IsNullOrEmpty(CloudSettingsDirectory) ? CloudSelection.LocalOnly : CloudSelection.InCloud;
             UseDefaultFont = Settings.Get<bool>(GrepSettings.Key.UseDefaultFont);
             ApplicationFontFamily = EditApplicationFontFamily =
                 ValueOrDefault(GrepSettings.Key.ApplicationFontFamily, SystemFonts.MessageFontFamily.Source);
@@ -950,6 +986,8 @@ namespace dnGREP.WPF
                 }
             }
 
+            bool newCloudPath = CloudSettingsDirectory != Settings.Get<string>(GrepSettings.Key.CloudSettingsDirectory);
+
             ApplicationFontFamily = EditApplicationFontFamily;
             MainFormFontSize = EditMainFormFontSize;
             ReplaceFormFontSize = EditReplaceFormFontSize;
@@ -1005,6 +1043,7 @@ namespace dnGREP.WPF
             Settings.Set(GrepSettings.Key.FollowWindowsTheme, FollowWindowsTheme);
             Settings.Set(GrepSettings.Key.CurrentTheme, CurrentTheme);
             Settings.Set(GrepSettings.Key.CurrentCulture, CurrentCulture);
+            Settings.Set(GrepSettings.Key.CloudSettingsDirectory, CloudSettingsDirectory);
             Settings.Set(GrepSettings.Key.UseDefaultFont, UseDefaultFont);
             Settings.Set(GrepSettings.Key.ApplicationFontFamily, ApplicationFontFamily);
             Settings.Set(GrepSettings.Key.MainFormFontSize, MainFormFontSize);
@@ -1055,6 +1094,11 @@ namespace dnGREP.WPF
 
             if (editorsChanged)
                 GrepSearchResultsViewModel.InitializeEditorMenuItems();
+
+            if (newCloudPath && !string.IsNullOrEmpty(CloudSettingsDirectory))
+            {
+                //ScriptManager.Instance
+            }
         }
 
         #endregion
