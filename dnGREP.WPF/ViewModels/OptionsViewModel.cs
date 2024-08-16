@@ -665,6 +665,7 @@ namespace dnGREP.WPF
                 CacheFilesInTempFolder != Settings.Get<bool>(GrepSettings.Key.CacheFilesInTempFolder) ||
                 CacheFilePath != Settings.Get<string>(GrepSettings.Key.CacheFilePath) ||
                 CacheFilesCleanDays != Settings.Get<int>(GrepSettings.Key.CacheFilesCleanDays) ||
+                CloudSettingsDirectory != Settings.Get<string>(GrepSettings.Key.CloudSettingsDirectory) ||
                 PdfToTextOptions != Settings.Get<string>(GrepSettings.Key.PdfToTextOptions) ||
                 PdfJoinLines != Settings.Get<bool>(GrepSettings.Key.PdfJoinLines) ||
                 PdfNumberStyle != Settings.Get<PdfNumberType>(GrepSettings.Key.PdfNumberStyle) ||
@@ -920,8 +921,6 @@ namespace dnGREP.WPF
             SearchAutoStopCount = Settings.Get<int>(GrepSettings.Key.SearchAutoStopCount);
             SearchAutoPauseCount = Settings.Get<int>(GrepSettings.Key.SearchAutoPauseCount);
             FocusElement = Settings.Get<FocusElement>(GrepSettings.Key.SetFocusElement);
-            CloudSettingsDirectory = Settings.Get<string>(GrepSettings.Key.CloudSettingsDirectory);
-            CloudSettingsOption = string.IsNullOrEmpty(CloudSettingsDirectory) ? CloudSelection.LocalOnly : CloudSelection.InCloud;
             UseDefaultFont = Settings.Get<bool>(GrepSettings.Key.UseDefaultFont);
             ApplicationFontFamily = EditApplicationFontFamily =
                 ValueOrDefault(GrepSettings.Key.ApplicationFontFamily, SystemFonts.MessageFontFamily.Source);
@@ -948,6 +947,9 @@ namespace dnGREP.WPF
             CacheFilePath = Settings.Get<string>(GrepSettings.Key.CacheFilePath);
             CacheFilesCleanDays = Settings.Get<int>(GrepSettings.Key.CacheFilesCleanDays);
             CacheFilesClean = CacheFilesCleanDays > 0;
+            CloudSettingsDirectory = Settings.Get<string>(GrepSettings.Key.CloudSettingsDirectory);
+            CloudSettingsOption = string.IsNullOrEmpty(CloudSettingsDirectory) ? CloudSelection.LocalOnly : CloudSelection.InCloud;
+
             PdfToTextOptions = Settings.Get<string>(GrepSettings.Key.PdfToTextOptions);
             PdfJoinLines = Settings.Get<bool>(GrepSettings.Key.PdfJoinLines);
             PdfNumberStyle = Settings.Get<PdfNumberType>(GrepSettings.Key.PdfNumberStyle);
@@ -1110,7 +1112,6 @@ namespace dnGREP.WPF
             Settings.Set(GrepSettings.Key.FollowWindowsTheme, FollowWindowsTheme);
             Settings.Set(GrepSettings.Key.CurrentTheme, CurrentTheme);
             Settings.Set(GrepSettings.Key.CurrentCulture, CurrentCulture);
-            Settings.Set(GrepSettings.Key.CloudSettingsDirectory, CloudSettingsDirectory);
             Settings.Set(GrepSettings.Key.UseDefaultFont, UseDefaultFont);
             Settings.Set(GrepSettings.Key.ApplicationFontFamily, ApplicationFontFamily);
             Settings.Set(GrepSettings.Key.MainFormFontSize, MainFormFontSize);
@@ -1124,6 +1125,7 @@ namespace dnGREP.WPF
             Settings.Set(GrepSettings.Key.CacheFilesInTempFolder, CacheFilesInTempFolder);
             Settings.Set(GrepSettings.Key.CacheFilePath, CacheFilePath);
             Settings.Set(GrepSettings.Key.CacheFilesCleanDays, CacheFilesCleanDays);
+            Settings.Set(GrepSettings.Key.CloudSettingsDirectory, CloudSettingsDirectory);
             Settings.Set(GrepSettings.Key.PdfToTextOptions, PdfToTextOptions);
             Settings.Set(GrepSettings.Key.PdfJoinLines, PdfJoinLines);
             Settings.Set(GrepSettings.Key.PdfNumberStyle, PdfNumberStyle);
