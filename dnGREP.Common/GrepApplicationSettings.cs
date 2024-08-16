@@ -200,6 +200,8 @@ namespace dnGREP.Common
             public const string PreviewLargeFileLimit = "PreviewLargeFileLimit";
             [DefaultValue(true)]
             public const string PreviewAutoPosition = "PreviewAutoPosition";
+            [DefaultValue(false)]
+            public const string PreviewViewWhitespace = "PreviewViewWhitespace";
             [DefaultValue(false), CloudSetting]
             public const string CaptureGroupSearch = "CaptureGroupSearch";
             [DefaultValue(16), CloudSetting]
@@ -277,6 +279,8 @@ namespace dnGREP.Common
             public const string PreviewZoomWndVisible = "PreviewZoomWndVisible";
             [DefaultValue(true), CloudSetting]
             public const string WrapTextPreviewWndVisible = "WrapTextPreviewWndVisible";
+            [DefaultValue(true)]
+            public const string ViewWhitespacePreviewWndVisible = "ViewWhitespacePreviewWndVisible";
             [DefaultValue(true), CloudSetting]
             public const string SyntaxPreviewWndVisible = "SyntaxPreviewWndVisible";
             [DefaultValue(true), CloudSetting]
@@ -374,6 +378,14 @@ namespace dnGREP.Common
             public const string ArchiveMove = "ArchiveMove";
             [DefaultValue(ArchiveCopyMoveDelete.DoNothing), CloudSetting]
             public const string ArchiveDelete = "ArchiveDelete";
+            [DefaultValue(true)]
+            public const string CacheExtractedFiles = "CacheExtractedFiles";
+            [DefaultValue(true)]
+            public const string CacheFilesInTempFolder = "CacheFilesInTempFolder";
+            [DefaultValue("")]
+            public const string CacheFilePath = "CacheFilePath";
+            [DefaultValue(0)]
+            public const string CacheFilesCleanDays = "CacheFilesCleanDays";
             [DefaultValue("")]
             public const string CloudSettingsDirectory = "CloudSettingsDirectory";
         }
