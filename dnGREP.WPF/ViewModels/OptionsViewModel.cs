@@ -72,10 +72,8 @@ namespace dnGREP.WPF
                 PanelTooltip = IsAdministrator ? null : Resources.Options_ToChangeThisSettingRunDnGREPAsAdministrator;
                 WindowsIntegrationTooltip = IsAdministrator ? Resources.Options_EnablesStartingDnGrepFromTheWindowsExplorerRightClickContextMenu : string.Empty;
 
-                foreach (var item in VisibilityOptions)
-                {
-                    item.UpdateLabel();
-                }
+                // reload to reset the group and item text
+                LoadVisibilityOptions();
 
                 // call these to reformat decimal separators
                 OnPropertyChanged(nameof(EditMainFormFontSize));
@@ -86,55 +84,56 @@ namespace dnGREP.WPF
                 OnPropertyChanged(nameof(MatchThreshold));
             };
 
+            LoadVisibilityOptions();
+        }
 
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_Features, nameof(Resources.Main_Menu_Bookmarks), GrepSettings.Key.BookmarksVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_Features, nameof(Resources.Main_TestExpression), GrepSettings.Key.TestExpressionVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_Features, nameof(Resources.Main_ReplaceButton), GrepSettings.Key.ReplaceVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_Features, nameof(Resources.Main_SortButton), GrepSettings.Key.SortVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_Features, nameof(Resources.Main_MoreArrowButton), GrepSettings.Key.MoreVisible));
+        private void LoadVisibilityOptions()
+        {
+            VisibilityOptions.Clear();
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_Features), nameof(Resources.Main_Menu_Bookmarks), GrepSettings.Key.BookmarksVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_Features), nameof(Resources.Main_TestExpression), GrepSettings.Key.TestExpressionVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_Features), nameof(Resources.Main_ReplaceButton), GrepSettings.Key.ReplaceVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_Features), nameof(Resources.Main_SortButton), GrepSettings.Key.SortVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_Features), nameof(Resources.Main_MoreArrowButton), GrepSettings.Key.MoreVisible));
 
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_FileFilter, nameof(Resources.Main_SearchInArchives), GrepSettings.Key.SearchInArchivesVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_FileFilter, nameof(Resources.Main_AllSizes), GrepSettings.Key.SizeFilterVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_FileFilter, nameof(Resources.Main_IncludeSubfolders), GrepSettings.Key.SubfoldersFilterVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_FileFilter, nameof(Resources.Main_IncludeHiddenFolders), GrepSettings.Key.HiddenFilterVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_FileFilter, nameof(Resources.Main_IncludeBinaryFiles), GrepSettings.Key.BinaryFilterVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_FileFilter, nameof(Resources.Main_FollowSymbolicLinks), GrepSettings.Key.SymbolicLinkFilterVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_FileFilter, nameof(Resources.Main_AllDates), GrepSettings.Key.DateFilterVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_FileFilter), nameof(Resources.Main_SearchInArchives), GrepSettings.Key.SearchInArchivesVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_FileFilter), nameof(Resources.Main_AllSizes), GrepSettings.Key.SizeFilterVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_FileFilter), nameof(Resources.Main_IncludeSubfolders), GrepSettings.Key.SubfoldersFilterVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_FileFilter), nameof(Resources.Main_IncludeHiddenFolders), GrepSettings.Key.HiddenFilterVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_FileFilter), nameof(Resources.Main_IncludeBinaryFiles), GrepSettings.Key.BinaryFilterVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_FileFilter), nameof(Resources.Main_FollowSymbolicLinks), GrepSettings.Key.SymbolicLinkFilterVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_FileFilter), nameof(Resources.Main_AllDates), GrepSettings.Key.DateFilterVisible));
 
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_SpecialOptions, nameof(Resources.Main_SearchParallel), GrepSettings.Key.SearchParallelVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_SpecialOptions, nameof(Resources.Main_UseGitignore), GrepSettings.Key.UseGitIgnoreVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_SpecialOptions, nameof(Resources.Main_SkipRemoteCloudStorageFiles), GrepSettings.Key.SkipCloudStorageVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_SpecialOptions, nameof(Resources.Main_Encoding), GrepSettings.Key.EncodingVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_SpecialOptions), nameof(Resources.Main_SearchParallel), GrepSettings.Key.SearchParallelVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_SpecialOptions), nameof(Resources.Main_UseGitignore), GrepSettings.Key.UseGitIgnoreVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_SpecialOptions), nameof(Resources.Main_SkipRemoteCloudStorageFiles), GrepSettings.Key.SkipCloudStorageVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_SpecialOptions), nameof(Resources.Main_Encoding), GrepSettings.Key.EncodingVisible));
 
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_SearchType, nameof(Resources.Main_SearchType_Regex), GrepSettings.Key.SearchTypeRegexVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_SearchType, nameof(Resources.Main_SearchType_XPath), GrepSettings.Key.SearchTypeXPathVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_SearchType, nameof(Resources.Main_SearchType_Text), GrepSettings.Key.SearchTypeTextVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_SearchType, nameof(Resources.Main_SearchType_Phonetic), GrepSettings.Key.SearchTypePhoneticVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_SearchType, nameof(Resources.Main_SearchType_Hex), GrepSettings.Key.SearchTypeByteVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_SearchType), nameof(Resources.Main_SearchType_Regex), GrepSettings.Key.SearchTypeRegexVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_SearchType), nameof(Resources.Main_SearchType_XPath), GrepSettings.Key.SearchTypeXPathVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_SearchType), nameof(Resources.Main_SearchType_Text), GrepSettings.Key.SearchTypeTextVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_SearchType), nameof(Resources.Main_SearchType_Phonetic), GrepSettings.Key.SearchTypePhoneticVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_SearchType), nameof(Resources.Main_SearchType_Hex), GrepSettings.Key.SearchTypeByteVisible));
 
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_SearchOptions, nameof(Resources.Main_BooleanOperators), GrepSettings.Key.BooleanOperatorsVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_SearchOptions, nameof(Resources.Main_CaptureGroupSearch), GrepSettings.Key.CaptureGroupSearchVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_SearchOptions), nameof(Resources.Main_BooleanOperators), GrepSettings.Key.BooleanOperatorsVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_SearchOptions), nameof(Resources.Main_CaptureGroupSearch), GrepSettings.Key.CaptureGroupSearchVisible));
 
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_ResultOptions, nameof(Resources.Main_SearchInResults), GrepSettings.Key.SearchInResultsVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_ResultOptions, nameof(Resources.Main_PreviewFile), GrepSettings.Key.PreviewFileVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_ResultOptions), nameof(Resources.Main_SearchInResults), GrepSettings.Key.SearchInResultsVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_ResultOptions), nameof(Resources.Main_PreviewFile), GrepSettings.Key.PreviewFileVisible));
 
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_ResultsTree, nameof(Resources.Main_HighlightMatches), GrepSettings.Key.HighlightMatchesVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_ResultsTree, nameof(Resources.Main_HighlightGroups), GrepSettings.Key.HighlightGroupsVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_ResultsTree, nameof(Resources.Main_ContextShowLines), GrepSettings.Key.ShowContextLinesVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_ResultsTree, nameof(Resources.Main_Zoom), GrepSettings.Key.ZoomResultsTreeVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_ResultsTree, nameof(Resources.Main_WrapText), GrepSettings.Key.WrapTextResultsTreeVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_ResultsTree), nameof(Resources.Main_HighlightMatches), GrepSettings.Key.HighlightMatchesVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_ResultsTree), nameof(Resources.Main_HighlightGroups), GrepSettings.Key.HighlightGroupsVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_ResultsTree), nameof(Resources.Main_ContextShowLines), GrepSettings.Key.ShowContextLinesVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_ResultsTree), nameof(Resources.Main_Zoom), GrepSettings.Key.ZoomResultsTreeVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_ResultsTree), nameof(Resources.Main_WrapText), GrepSettings.Key.WrapTextResultsTreeVisible));
 
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_PreviewWindow, nameof(Resources.Preview_Zoom), GrepSettings.Key.PreviewZoomWndVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_PreviewWindow, nameof(Resources.Preview_WrapText), GrepSettings.Key.WrapTextPreviewWndVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_PreviewWindow, nameof(Resources.Preview_ViewWhitespace), GrepSettings.Key.ViewWhitespacePreviewWndVisible));
-            VisibilityOptions.Add(new VisibilityOption(Resources.Options_Personalize_PreviewWindow, nameof(Resources.Preview_Syntax), GrepSettings.Key.SyntaxPreviewWndVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_PreviewWindow), nameof(Resources.Preview_Zoom), GrepSettings.Key.PreviewZoomWndVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_PreviewWindow), nameof(Resources.Preview_WrapText), GrepSettings.Key.WrapTextPreviewWndVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_PreviewWindow), nameof(Resources.Preview_ViewWhitespace), GrepSettings.Key.ViewWhitespacePreviewWndVisible));
+            VisibilityOptions.Add(new VisibilityOption(nameof(Resources.Options_Personalize_PreviewWindow), nameof(Resources.Preview_Syntax), GrepSettings.Key.SyntaxPreviewWndVisible));
         }
 
         #region Private Variables and Properties
-        private const string ArchiveNameKey = "Archive";
-        private const string CustomNameKey = " Custom";
-        private const string EnabledKey = "Enabled";
-        private const string PreviewTextKey = "PreviewText";
         private static GrepSettings Settings => GrepSettings.Instance;
         #endregion
 
@@ -466,6 +465,9 @@ namespace dnGREP.WPF
         private bool cacheExtractedFiles;
 
         [ObservableProperty]
+        private HashOption cacheFileHashType = HashOption.FullFile;
+
+        [ObservableProperty]
         private bool cacheFilesInTempFolder;
 
         partial void OnCacheFilesInTempFolderChanged(bool value)
@@ -662,6 +664,7 @@ namespace dnGREP.WPF
                 HexResultByteLength != Settings.Get<int>(GrepSettings.Key.HexResultByteLength) ||
                 PreviewLargeFileLimit != Settings.Get<long>(GrepSettings.Key.PreviewLargeFileLimit) ||
                 CacheExtractedFiles != Settings.Get<bool>(GrepSettings.Key.CacheExtractedFiles) ||
+                CacheFileHashType != Settings.Get<HashOption>(GrepSettings.Key.CacheFileHashType) ||
                 CacheFilesInTempFolder != Settings.Get<bool>(GrepSettings.Key.CacheFilesInTempFolder) ||
                 CacheFilePath != Settings.Get<string>(GrepSettings.Key.CacheFilePath) ||
                 CacheFilesCleanDays != Settings.Get<int>(GrepSettings.Key.CacheFilesCleanDays) ||
@@ -943,6 +946,7 @@ namespace dnGREP.WPF
             HexResultByteLength = Settings.Get<int>(GrepSettings.Key.HexResultByteLength);
             PreviewLargeFileLimit = Settings.Get<long>(GrepSettings.Key.PreviewLargeFileLimit);
             CacheExtractedFiles = Settings.Get<bool>(GrepSettings.Key.CacheExtractedFiles);
+            CacheFileHashType = Settings.Get<HashOption>(GrepSettings.Key.CacheFileHashType);
             CacheFilesInTempFolder = Settings.Get<bool>(GrepSettings.Key.CacheFilesInTempFolder);
             CacheFilePath = Settings.Get<string>(GrepSettings.Key.CacheFilePath);
             CacheFilesCleanDays = Settings.Get<int>(GrepSettings.Key.CacheFilesCleanDays);
@@ -1054,6 +1058,8 @@ namespace dnGREP.WPF
                 Path.Combine(Path.GetTempPath(), Utils.defaultCacheFolderName) :
                 CacheFilePath;
             bool isCachePathChanged = oldCachePath != newCachePath;
+            bool isCacheHashTypeChanged = CacheFileHashType !=
+                GrepSettings.Instance.Get<HashOption>(GrepSettings.Key.CacheFileHashType);
 
             bool newCloudPath = CloudSettingsDirectory != Settings.Get<string>(GrepSettings.Key.CloudSettingsDirectory);
 
@@ -1122,6 +1128,7 @@ namespace dnGREP.WPF
             Settings.Set(GrepSettings.Key.HexResultByteLength, HexResultByteLength);
             Settings.Set(GrepSettings.Key.PreviewLargeFileLimit, PreviewLargeFileLimit);
             Settings.Set(GrepSettings.Key.CacheExtractedFiles, CacheExtractedFiles);
+            Settings.Set(GrepSettings.Key.CacheFileHashType, CacheFileHashType);
             Settings.Set(GrepSettings.Key.CacheFilesInTempFolder, CacheFilesInTempFolder);
             Settings.Set(GrepSettings.Key.CacheFilePath, CacheFilePath);
             Settings.Set(GrepSettings.Key.CacheFilesCleanDays, CacheFilesCleanDays);
@@ -1168,7 +1175,8 @@ namespace dnGREP.WPF
             if (editorsChanged)
                 GrepSearchResultsViewModel.InitializeEditorMenuItems();
 
-            if ((isCacheRemoved || isCachePathChanged) && Directory.Exists(oldCachePath))
+            if ((isCacheRemoved || isCachePathChanged || isCacheHashTypeChanged) && 
+                Directory.Exists(oldCachePath))
             {
                 if (MessageBoxResult.Yes == MessageBox.Show(
                     Resources.MessageBox_ThePlugInCacheSettingsHaveChanged, Resources.MessageBox_DnGrep,
@@ -1200,18 +1208,20 @@ namespace dnGREP.WPF
 
     public partial class VisibilityOption : CultureAwareViewModel
     {
-        public VisibilityOption(string group, string labelKey, string optionKey)
+        public VisibilityOption(string groupKey, string labelKey, string optionKey)
         {
-            Group = group;
+            GroupKey = groupKey;
             LabelKey = labelKey;
             OptionKey = optionKey;
 
             isVisible = origIsVisible = GrepSettings.Instance.Get<bool>(OptionKey);
         }
 
-        public string Group { get; private set; }
+        public string GroupKey { get; private set; }
         public string LabelKey { get; private set; }
         public string OptionKey { get; private set; }
+
+        public string Group => TranslationSource.Instance[GroupKey];
 
         public string Label => TranslationSource.Instance[LabelKey].TrimEnd(':', '…');
 
@@ -1221,11 +1231,6 @@ namespace dnGREP.WPF
         {
             GrepSettings.Instance.Set(OptionKey, IsVisible);
             origIsVisible = IsVisible;
-        }
-
-        internal void UpdateLabel()
-        {
-            OnPropertyChanged(nameof(Label));
         }
 
         [ObservableProperty]

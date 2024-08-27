@@ -314,6 +314,8 @@ namespace dnGREP.Common
             public const string CacheFilePath = "CacheFilePath";
             [DefaultValue(0), CloudSetting]
             public const string CacheFilesCleanDays = "CacheFilesCleanDays";
+            [DefaultValue(HashOption.FullFile), CloudSetting]
+            public const string CacheFileHashType = "CacheFileHashType";
 
 
             // Report options: saved to cloud
