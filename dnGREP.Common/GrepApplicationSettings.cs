@@ -424,6 +424,7 @@ namespace dnGREP.Common
         private static GrepSettings? instance;
         private static readonly Logger logger = LogManager.GetCurrentClassLogger();
         private const string storageFileName = "dnGREP.Settings.dat";
+        private const string userSettingsFileName = "user.xml";
         private const string mutexId = "{83D660FA-E399-4BBC-A3FC-09897115D2E2}";
         public readonly static string DefaultMonospaceFontFamily = "Consolas";
 
@@ -461,6 +462,12 @@ namespace dnGREP.Common
                 {
                     Load(path, false);
                 }
+            }
+
+            var userSettings = Path.Combine(Utils.GetDataFolderPath(), userSettingsFileName);
+            if (File.Exists(userSettings))
+            {
+                Load(userSettings, false);
             }
         }
 
