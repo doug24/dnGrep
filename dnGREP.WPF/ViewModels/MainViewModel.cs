@@ -1123,14 +1123,37 @@ namespace dnGREP.WPF
                         if (!string.IsNullOrEmpty(param.FilePattern))
                             filePatternInclude = param.FilePattern;
 
+                        if (param.TypeOfFileSearch == FileSearchType.Asterisk &&
+                            !string.IsNullOrEmpty(filePatternInclude) &&
+                            filePatternInclude.Contains('/', StringComparison.Ordinal))
+                        {
+                            filePatternInclude = filePatternInclude.Replace('/', '\\');
+                        }
+
                         string filePatternExclude = "";
                         if (!string.IsNullOrEmpty(param.FilePatternIgnore))
                             filePatternExclude = param.FilePatternIgnore;
 
+                        if (param.TypeOfFileSearch == FileSearchType.Asterisk &&
+                            !string.IsNullOrEmpty(filePatternExclude) &&
+                            filePatternExclude.Contains('/', StringComparison.Ordinal))
+                        {
+                            filePatternExclude = filePatternExclude.Replace('/', '\\');
+                        }
+
+                        string fileOrFolderPaths = FileOrFolderPath;
+                        if (param.TypeOfFileSearch != FileSearchType.Everything &&
+                            !string.IsNullOrEmpty(fileOrFolderPaths) &&
+                            fileOrFolderPaths.Contains('/', StringComparison.Ordinal))
+                        {
+                            fileOrFolderPaths = fileOrFolderPaths.Replace('/', '\\');
+                        }
+
+
                         IEnumerable<FileData>? fileInfos = null;
                         IEnumerable<string>? files = null;
 
-                        FileFilter fileParams = new(FileOrFolderPath, filePatternInclude, filePatternExclude,
+                        FileFilter fileParams = new(fileOrFolderPaths, filePatternInclude, filePatternExclude,
                             param.TypeOfFileSearch == FileSearchType.Regex, param.UseGitIgnore, param.TypeOfFileSearch == FileSearchType.Everything,
                             param.IncludeSubfolder, param.MaxSubfolderDepth, param.IncludeHidden, param.IncludeBinary, param.IncludeArchive,
                             param.FollowSymlinks, sizeFrom, sizeTo, param.UseFileDateFilter, startTime, endTime,

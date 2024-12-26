@@ -22,7 +22,8 @@ namespace dnGREP.Common
 
                 baseFolder = string.Empty;
                 isValidPath = null;
-                fileOrFolderPath = value;
+                fileOrFolderPath = TypeOfFileSearch != FileSearchType.Everything ?
+                    value.Replace('/', '\\') : value;
             }
         }
 
