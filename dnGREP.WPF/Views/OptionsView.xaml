@@ -26,6 +26,7 @@
                  my:InputBindingsBehavior.InputBindings="{Binding InputBindings}" >
 
     <Window.Resources>
+        <my:BoolToVisibilityConverter x:Key="boolToVis" TrueValue="Visible" FalseValue="Collapsed" />
         <my:EnumBooleanConverter x:Key="ebc" />
         <my:InverseBooleanConverter x:Key="not" />
         <my:TextBoxWidthConverter x:Key="TextBoxWidthConverter"/>
@@ -76,16 +77,27 @@
 
     <Grid Margin="12,0,0,0" Grid.IsSharedSizeScope="True">
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
             <RowDefinition />
             <RowDefinition Height="Auto" />
         </Grid.RowDefinitions>
-        <ScrollViewer Grid.Row="0" PanningMode="Both" HorizontalScrollBarVisibility="Auto">
+        
+        <StackPanel Grid.Row="0"
+                    Orientation="Horizontal"
+                    Margin="0,6,0,0">
+            <TextBlock Text="Search" Margin="12,3,3,3"/>
+            <TextBox Width="340" Margin="3"/>
+        </StackPanel>
+        
+        <ScrollViewer Grid.Row="1" PanningMode="Both" HorizontalScrollBarVisibility="Auto">
             <StackPanel HorizontalAlignment="Stretch">
 
-                <GroupBox Header="{l:Loc Key='Options_StartupOptions'}">
+                <GroupBox Header="{l:Loc Key='Options_StartupOptions'}"
+                          Visibility="{Binding StartupOptionsVisibility, Converter={StaticResource boolToVis}}">
                     <StackPanel Orientation="Vertical">
                         <Label Content="{l:Loc Key='Options_ShowDnGrepInExplorerRightClickMenu'}"
-                               ToolTip="{l:Loc Key='Options_EnablesStartingDnGrepFromTheWindowsExplorerRightClickContextMenu'}"/>
+                               ToolTip="{l:Loc Key='Options_EnablesStartingDnGrepFromTheWindowsExplorerRightClickContextMenu'}"
+                               Visibility="{Binding ShowDnGrepInExplorerRightClickMenuVisibility, Converter={StaticResource boolToVis}}"/>
                         <Border ToolTip="{Binding EnableWindows11ShellMenuTooltip}" Margin="24,0,0,0">
                             <CheckBox Margin="0,3"
                                       IsChecked="{Binding Path=EnableWindows11ShellMenu}" 
@@ -1295,11 +1307,11 @@
 
         </ScrollViewer>
 
-        <WrapPanel Grid.Row="1" Margin="0,8,0,0" HorizontalAlignment="Left"
+        <WrapPanel Grid.Row="2" Margin="0,8,0,0" HorizontalAlignment="Left"
                    VerticalAlignment="Center">
             <TextBlock Text="{l:Loc Key='Options_PressF1ForHelpOnOptions'}" HorizontalAlignment="Left"/>
         </WrapPanel>
-        <WrapPanel Grid.Row="1" Margin="0,8,0,0" HorizontalAlignment="Right"
+        <WrapPanel Grid.Row="2" Margin="0,8,0,0" HorizontalAlignment="Right"
                    VerticalAlignment="Bottom">
             <Button x:Name="btnSave" Padding="24,3" Margin="0,5,10,5"
                     IsDefault="True" Content="{l:Loc Key='Options_Save'}"

@@ -43,6 +43,8 @@ namespace dnGREP.WPF
 
         public OptionsViewModel()
         {
+            BuildVisibilityTree();
+
             TaskLimit = Environment.ProcessorCount * 4;
 
             OptionsMessenger.Register("DeleteCustomEditor",
