@@ -32,6 +32,12 @@
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Images\ExclamationPoint.png" />
+    <None Remove="Images\SwapDark0.png" />
+    <None Remove="Images\SwapDark1.png" />
+    <None Remove="Images\SwapDark2.png" />
+    <None Remove="Images\SwapLight0.png" />
+    <None Remove="Images\SwapLight1.png" />
+    <None Remove="Images\SwapLight2.png" />
     <None Remove="nlog.config" />
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +64,12 @@
     </Content>
     <Resource Include="Images\dnGrep48.png" />
     <Resource Include="Images\ExclamationPoint.png" />
+    <Resource Include="Images\SwapDark0.png" />
+    <Resource Include="Images\SwapDark1.png" />
+    <Resource Include="Images\SwapDark2.png" />
+    <Resource Include="Images\SwapLight0.png" />
+    <Resource Include="Images\SwapLight1.png" />
+    <Resource Include="Images\SwapLight2.png" />
     <Resource Include="ThemedControls\next.png" />
     <Resource Include="ThemedControls\prev.png" />
     <Resource Include="Images\dnGrep96.png" />
@@ -247,6 +259,9 @@
     <WordPluginFiles Include="$(SolutionDir)\dnGREP.WordEngine\bin\$(Platform)\$(Configuration)\$(TargetFramework)\dnGREP.Engines.Word.pdb" />
   </ItemGroup>
   <ItemGroup>
+    <ValencianFiles Include="$(SolutionDir)\dnGREP.WPF\bin\$(Platform)\$(Configuration)\$(TargetFramework)\ca-ES-valencia\dnGREP.Localization.resources.dll" />
+  </ItemGroup>
+  <ItemGroup>
     <SparsePackageFiles Include="$(SolutionDir)\dnGREP.ContextMenu\bin\$(Platform)\$(Configuration)\dnGREP.ContextMenu.dll" />
     <SparsePackageFiles Include="$(SolutionDir)\dnGREP.WPF\nGrep.ico" />
     <SparsePackageFiles Include="$(SolutionDir)\dnGREP.msix" />
@@ -269,6 +284,8 @@
     <Copy SourceFiles="@(WordPluginFiles)" DestinationFolder="$(SolutionDir)\publish\win-$(Platform)\Plugins\MsWordSearch" />
     <Copy SourceFiles="@(RuntimeFiles)" DestinationFolder="$(SolutionDir)\publish\win-$(Platform)\runtimes\win\lib\net9.0\" />
     <Copy SourceFiles="@(SparsePackageFiles)" DestinationFolder="$(SolutionDir)\publish\win-$(Platform)" />
+    <!-- I don't know why this satellite assembly is not published the same as the others -->
+    <Copy SourceFiles="@(ValencianFiles)" DestinationFolder="$(SolutionDir)\publish\win-$(Platform)\ca-ES-valencia" />
   </Target>
   <PropertyGroup>
     <Authors>dnGrep Community Contributors</Authors>
