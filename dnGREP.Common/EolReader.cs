@@ -63,25 +63,40 @@ namespace dnGREP.Common
 
                     if (ch == '\r' || ch == '\n')
                     {
+                        // Include the \n of a \r\n pair in the single string allocation.
+                        // If the \r is the last char in the buffer, the next char is only
+                        // available after the buffer is refilled; that case is rare.
+                        int end = i;
+                        bool crAtBufferEnd = false;
+                        if (ch == '\r')
+                        {
+                            if (i < charLen)
+                            {
+                                if (charBuffer[i] == '\n')
+                                    end++;
+                            }
+                            else
+                            {
+                                crAtBufferEnd = true;
+                            }
+                        }
+
                         string s;
                         if (sb != null)
                         {
-                            sb.Append(charBuffer, charPos, i - charPos);
+                            sb.Append(charBuffer, charPos, end - charPos);
                             s = sb.ToString();
                         }
                         else
                         {
-                            s = new string(charBuffer, charPos, i - charPos);
+                            s = new string(charBuffer, charPos, end - charPos);
                         }
 
-                        charPos = i;
-                        if (ch == '\r' && (charPos < charLen || ReadBuffer() > 0))
+                        charPos = end;
+                        if (crAtBufferEnd && ReadBuffer() > 0 && charBuffer[charPos] == '\n')
                         {
-                            if (charBuffer[charPos] == '\n')
-                            {
-                                charPos++;
-                                s += '\n';
-                            }
+                            charPos++;
+                            s += '\n';
                         }
                         return s;
                     }
