@@ -2668,6 +2668,17 @@ namespace dnGREP.Common
             return !IsWordChar(beginText[^1]);
         }
 
+        /// <summary>
+        /// Span version of <see cref="IsValidBeginText(string)"/> that avoids copying the text.
+        /// </summary>
+        public static bool IsValidBeginText(ReadOnlySpan<char> beginText)
+        {
+            if (beginText.Length == 0)
+                return true;
+
+            return !IsWordChar(beginText[^1]);
+        }
+
         public static string ReplaceSpecialCharacters(string input)
         {
             if (string.IsNullOrEmpty(input))
@@ -2694,6 +2705,17 @@ namespace dnGREP.Common
         {
             if (endText == null)
                 return false;
+            if (endText.Length == 0)
+                return true;
+
+            return !IsWordChar(endText[0]);
+        }
+
+        /// <summary>
+        /// Span version of <see cref="IsValidEndText(string)"/> that avoids copying the text.
+        /// </summary>
+        public static bool IsValidEndText(ReadOnlySpan<char> endText)
+        {
             if (endText.Length == 0)
                 return true;
 
