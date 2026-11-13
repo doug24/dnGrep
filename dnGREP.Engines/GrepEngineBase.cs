@@ -332,7 +332,7 @@ namespace dnGREP.Engines
                                 value = value.TrimEnd('\r');
                             }
 
-                            grepMatch.Groups.Add(
+                            grepMatch.AddGroup(
                                 new GrepCaptureGroup(regex.GroupNameFromNumber(idx), groupStart, length, value));
                         }
                     }

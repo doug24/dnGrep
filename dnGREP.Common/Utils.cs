@@ -2267,7 +2267,7 @@ namespace dnGREP.Common
 
                                     Guid fileMatchId = bodyMatchesClone[0].FileMatchId;
 
-                                    List<GrepCaptureGroup> lineGroups;
+                                    IReadOnlyList<GrepCaptureGroup> lineGroups;
                                     // for multiline regex, get just the groups on the current line
                                     if (multilineMatch)
                                     {
@@ -2373,11 +2373,10 @@ namespace dnGREP.Common
                             string first = value[..pos];
                             string second = value[(pos + eol.Length)..];
 
-                            grepMatch.Groups.RemoveAt(idx);
-                            grepMatch.Groups.Insert(idx, new(name, start, first.Length, first, group.FullValue));
+                            grepMatch.SetGroup(idx, new(name, start, first.Length, first, group.FullValue));
                             if (second.Length > 0 && !second.Equals(eol, StringComparison.Ordinal))
                             {
-                                grepMatch.Groups.Add(new(name, start + first.Length + eol.Length, second.Length, second, group.FullValue));
+                                grepMatch.AddGroup(new(name, start + first.Length + eol.Length, second.Length, second, group.FullValue));
                             }
                             break;
                         }
