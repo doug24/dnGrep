@@ -553,13 +553,7 @@ namespace dnGREP.Common
         public static Encoding GetFileEncoding(string srcFile)
         {
             using FileStream readStream = File.Open(srcFile, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
-            var results = CharsetDetector.DetectFromStream(readStream);
-            // Get the best Detection
-            DetectionDetail resultDetected = results.Detected;
-            // Get the System.Text.Encoding of the found encoding (can be null if not available)
-            Encoding encoding = resultDetected?.Encoding ?? Encoding.Default;
-            encoding = CheckForUnicodeWithNoBOM(encoding, resultDetected, readStream);
-            return encoding;
+            return DetectEncoding(readStream);
         }
 
         /// <summary>
@@ -569,16 +563,38 @@ namespace dnGREP.Common
         /// <returns></returns>
         public static Encoding GetFileEncoding(Stream stream)
         {
-            var results = CharsetDetector.DetectFromStream(stream);
-            // Get the best Detection
-            DetectionDetail resultDetected = results.Detected;
-            // Get the System.Text.Encoding of the found encoding (can be null if not available)
-            Encoding encoding = resultDetected?.Encoding ?? Encoding.Default;
-            encoding = CheckForUnicodeWithNoBOM(encoding, resultDetected, stream);
+            Encoding encoding = DetectEncoding(stream);
 
             // reset the stream back to the beginning
             stream.Seek(0, SeekOrigin.Begin);
             return encoding;
+        }
+
+        // The detector would otherwise read every byte of every file before the search reads it again.
+        private const long MaxEncodingDetectionBytes = 1024 * 1024;
+
+        private static Encoding DetectEncoding(Stream stream)
+        {
+            var results = CharsetDetector.DetectFromStream(stream, MaxEncodingDetectionBytes);
+            // Get the best Detection
+            DetectionDetail resultDetected = results.Detected;
+            // Get the System.Text.Encoding of the found encoding (can be null if not available)
+            Encoding encoding = resultDetected?.Encoding ?? Encoding.Default;
+            bool detectedAscii = resultDetected != null &&
+                resultDetected.EncodingName.Equals("ascii", StringComparison.OrdinalIgnoreCase);
+
+            Encoding checkedEncoding = CheckForUnicodeWithNoBOM(encoding, resultDetected, stream);
+
+            // Only the start of a large file was inspected, and it is plain ASCII. Non-ASCII text
+            // may follow, and a full scan would then have found UTF-8. UTF-8 decodes the ASCII text
+            // the same way, so use it rather than risk corrupting the rest of the file.
+            if (detectedAscii && ReferenceEquals(checkedEncoding, encoding) &&
+                stream.CanSeek && stream.Length > MaxEncodingDetectionBytes)
+            {
+                return Encoding.UTF8;
+            }
+
+            return checkedEncoding;
         }
 
         private static Encoding CheckForUnicodeWithNoBOM(Encoding encoding, DetectionDetail? resultDetected,
