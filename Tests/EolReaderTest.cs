@@ -115,6 +115,28 @@ namespace Tests
         }
 
         [Fact]
+        public void RoundTripsRandomLongLines()
+        {
+            Random rng = new(5678);
+            string[] pieces = [new string('a', 700), new string('b', 1500), new string('c', 70000), "x", "\r", "\n", "\r\n"];
+            StringBuilder sb = new();
+            for (int i = 0; i < 400; i++)
+                sb.Append(pieces[rng.Next(pieces.Length)]);
+            string text = sb.ToString();
+
+            List<string> lines = ReadAll(text);
+
+            Assert.Equal(text, string.Concat(lines));
+            // same lines as the framework reader, which does not keep the line endings
+            using StringReader reference = new(text);
+            foreach (string line in lines)
+            {
+                Assert.Equal(reference.ReadLine(), line.TrimEnd('\r', '\n'));
+            }
+            Assert.Null(reference.ReadLine());
+        }
+
+        [Fact]
         public void RoundTripsRandomText()
         {
             Random rng = new(1234);
