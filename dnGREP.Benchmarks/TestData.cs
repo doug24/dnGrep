@@ -74,6 +74,12 @@ namespace dnGREP.Benchmarks
             return new TestFile(path, new FileInfo(path).Length, matches);
         }
 
+        /// <summary>
+        /// Writes a new test file to the given path, replacing any existing file, and returns the number of matches in it.
+        /// </summary>
+        public static long GenerateFile(string path, int sizeMB, int lineLength, LineEnding eol, MatchDensity density) =>
+            Generate(path, (long)sizeMB * 1024 * 1024, lineLength, eol, density);
+
         private static long Generate(string path, long totalChars, int lineLength, LineEnding eol, MatchDensity density)
         {
             string eolText = eol == LineEnding.CRLF ? "\r\n" : "\n";

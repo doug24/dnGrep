@@ -213,7 +213,7 @@ namespace dnGREP.Benchmarks
                 """);
         }
 
-        private static Dictionary<string, string> ParseArgs(string[] args)
+        internal static Dictionary<string, string> ParseArgs(string[] args)
         {
             Dictionary<string, string> result = new(StringComparer.OrdinalIgnoreCase);
             for (int i = 0; i < args.Length; i++)
@@ -230,11 +230,11 @@ namespace dnGREP.Benchmarks
             return result;
         }
 
-        private static int GetInt(Dictionary<string, string> options, string key, int defaultValue) =>
+        internal static int GetInt(Dictionary<string, string> options, string key, int defaultValue) =>
             options.TryGetValue(key, out string? value) && int.TryParse(value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int i)
                 ? i : defaultValue;
 
-        private static T GetEnum<T>(Dictionary<string, string> options, string key, T defaultValue) where T : struct, Enum =>
+        internal static T GetEnum<T>(Dictionary<string, string> options, string key, T defaultValue) where T : struct, Enum =>
             options.TryGetValue(key, out string? value) && Enum.TryParse(value, true, out T e) ? e : defaultValue;
 
         /// <summary>

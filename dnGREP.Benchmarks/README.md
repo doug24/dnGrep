@@ -42,3 +42,20 @@ The exit code is 2 if the match count differs from what the generated files cont
 `--multiline` searches each file as a whole, and `--budget N` sets the search memory budget in MB
 (0 = automatic, a quarter of the available memory). A very large budget turns the limit off, which
 gives a baseline for the memory gate that holds back large files when the search runs in parallel.
+
+## Generating test files to use outside the benchmarks
+
+`generate` writes a set of files to any folder, so dnGrep, Process Explorer or another build can be
+tried on the same data:
+
+```
+dotnet run -c Release -p:Platform=x64 -- generate --out D:\data --files 300 --min-mb 100 --max-mb 400 --sizes 7
+dotnet run -c Release -p:Platform=x64 -- generate --out D:\zips --files 20 --mb 200 --zip
+dotnet run -c Release -p:Platform=x64 -- generate --help
+```
+
+The files hold random lowercase words and the text `needle` at the chosen density, searchable with plain text,
+whole word and regex. `--min-mb`, `--max-mb` and `--sizes` vary the file sizes, `--length` sets the line length
+(0 = one line per file), `--eol` the line ending, and `--zip` puts each file in its own archive. Files of the same
+size are copies of each other. `manifest.csv` in the output folder lists the expected number of matches
+per file, to check search results against. The command stops if the folder has too little free disk space.
