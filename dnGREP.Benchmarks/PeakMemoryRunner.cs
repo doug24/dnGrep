@@ -39,6 +39,8 @@ namespace dnGREP.Benchmarks
             int fileCount = GetInt(options, "files", 8);
             int parallel = GetInt(options, "parallel", -1);
             bool serial = options.ContainsKey("serial");
+            bool multiline = options.ContainsKey("multiline");
+            int budgetMB = GetInt(options, "budget", 0);
             string label = options.GetValueOrDefault("label", string.Empty);
             string? csv = options.GetValueOrDefault("csv");
 
@@ -50,9 +52,15 @@ namespace dnGREP.Benchmarks
                 _ => throw new ArgumentException($"Unknown search type '{type}'; use plain, wholeword or regex")
             };
 
+            if (multiline)
+            {
+                searchOptions |= GrepSearchOption.Multiline;
+            }
+
             List<string> files = PrepareFiles(length, eol, density, sizeMB, fileCount, out long expectedMatches);
 
             GrepSettings.Instance.Set(GrepSettings.Key.MaxDegreeOfParallelism, parallel);
+            GrepSettings.Instance.Set(GrepSettings.Key.SearchMemoryBudgetMB, budgetMB);
             GrepCore.Initialize();
 
             GC.Collect(2, GCCollectionMode.Forced, true, true);
@@ -97,7 +105,7 @@ namespace dnGREP.Benchmarks
 
             Console.WriteLine();
             Console.WriteLine($"Files: {files.Count} x {sizeMB} MB, line length {(length <= 0 ? "single line" : length.ToString(CultureInfo.InvariantCulture))}, {eol}, density {density}, search {type}, " +
-                $"{(serial ? "serial" : $"parallel (max {parallel})")}");
+                $"{(serial ? "serial" : $"parallel (max {parallel})")}, {(multiline ? "multiline" : "line by line")}, budget {(budgetMB > 0 ? budgetMB + " MB" : "auto")}");
             Console.WriteLine($"Elapsed:                       {sw.Elapsed.TotalSeconds,10:N2} s");
             Console.WriteLine($"Matches found:                 {matches,10:N0} (expected {expectedMatches * files.Count:N0})");
             Console.WriteLine($"Private bytes at start:        {startPrivate,10:N0} MB");
@@ -196,6 +204,8 @@ namespace dnGREP.Benchmarks
                   --files N       number of files to search (default 8)
                   --parallel N    max degree of parallelism, -1 = default (default -1)
                   --serial        turn off the "search in parallel" option
+                  --multiline     search with the Multiline option (reads each file as a whole)
+                  --budget N      search memory budget in MB for parallel files; 0 = automatic (default 0)
                   --label TEXT    label for the csv row, e.g. "baseline"
                   --csv PATH      append a result row to this csv file
 

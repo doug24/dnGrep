@@ -38,3 +38,7 @@ It reports peak private bytes, peak working set, peak managed heap, total alloca
 pause time, and the memory retained after the search with the results alive and after they are released.
 `--csv results.csv --label baseline` appends a row so runs before and after a change can be compared.
 The exit code is 2 if the match count differs from what the generated files contain.
+
+`--multiline` searches each file as a whole, and `--budget N` sets the search memory budget in MB
+(0 = automatic, a quarter of the available memory). A very large budget turns the limit off, which
+gives a baseline for the memory gate that holds back large files when the search runs in parallel.

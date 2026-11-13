@@ -317,6 +317,8 @@ namespace dnGREP.Common
             public const string OverwriteFilesOnMove = "OverwriteFilesOnMove";
             [DefaultValue(-1)]
             public const string MaxDegreeOfParallelism = "MaxDegreeOfParallelism";
+            [DefaultValue(0)]
+            public const string SearchMemoryBudgetMB = "SearchMemoryBudgetMB";
             [DefaultValue(true)]
             public const string PreserveFolderLayoutOnCopy = "PreserveFolderLayoutOnCopy";
             [DefaultValue(true)]
